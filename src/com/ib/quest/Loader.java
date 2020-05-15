@@ -14,6 +14,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlDivision;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.HtmlParagraph;
 import com.gargoylesoftware.htmlunit.html.HtmlTableBody;
 
 /**
@@ -188,7 +189,6 @@ public class Loader {
 				continue;
 			// Update LastQuestion
 			lastQuestion = curQuestion;
-			System.out.println(curQuestion);
 			// Stores the Topics
 			questions.put(curQuestion, item.getFirstByXPath("a"));
 		}
@@ -242,10 +242,10 @@ public class Loader {
 		 */
 		private QType qType;
 		
-		private Question(String text, String label, int mark, QType qType) {
-			this.text = text;
-			this.label = label;
-			this.mark = mark;
+		private Question(String text, String label, String mark, QType qType) {
+			this.text = text.trim();
+			this.label = label.trim();
+			this.mark = Integer.parseInt(mark.trim().substring(1, mark.length() - 1));
 			this.qType = qType;
 		}
 		
@@ -259,7 +259,7 @@ public class Loader {
 		 * @param mark
 		 * The Mark
 		 */
-		private Question(String text, String label, int mark) {
+		private Question(String text, String label, String mark) {
 			this(text, label, mark, QType.QUEST);
 		}
 		
@@ -272,7 +272,7 @@ public class Loader {
 		 * The Label
 		 */
 		public Question(String text, String label) {
-			this(text, label, -1, QType.ANS);
+			this(text, label, "-1", QType.ANS);
 		}
 		
 		/**
@@ -282,7 +282,7 @@ public class Loader {
 		 * The Text
 		 */
 		public Question(String text) {
-			this(text, "-1", -1, QType.SPEC);
+			this(text, "-1", "-1", QType.SPEC);
 		}
 
 		/**
@@ -343,16 +343,63 @@ public class Loader {
 	
 	/**
 	 * Organize Parts of the Question
+	 * 
+	 * @param ID
+	 * The Question Identifier
 	 */
-	public void loadQParts() {
-		
+	public void loadQParts(String ID) {
+		// Clear List
+		qParts.clear();
+		// Get Page
+		HtmlPage questPg = null;
+		try {
+			questPg = questions.get(ID).click();
+		} catch (IOException e) {
+			System.err.println("Error: Question cannot be found");
+			System.exit(-1);
+		}
+		// Get Specification
+		List<HtmlParagraph> specs = questPg.getByXPath("//div[@class='specification']/p");
+		for(HtmlParagraph p : specs) {
+			qParts.add(new Question(p.asText()));
+			
+			System.out.println(p.asText());
+		}
+		// Get Question
+		List<HtmlDivision> q = questPg.getByXPath("//div[@class='question' and div[@class='marks']]");
+		for(HtmlDivision div : q) {
+			String qText = "";
+			List<HtmlParagraph> qTextP = div.getByXPath("p");
+			for(HtmlParagraph qP : qTextP)
+				qText += qP.asText();
+			
+			System.out.println(qText);
+			
+			HtmlDivision lab = div.getFirstByXPath("div[@class='question_part_label']"), 
+						 mark = div.getFirstByXPath("div[@class='marks']");
+			qParts.add(new Question(qText, lab.asText(), mark.asText()));
+		}
+		// Get Answers
+		List<HtmlDivision> ans = questPg.getByXPath("//div[@class='question' and not(div[@class='marks'])]");
+		for(HtmlDivision div : ans) {
+			String aText = "";
+			List<HtmlParagraph> aTextP = div.getByXPath("p");
+			for(HtmlParagraph aP : aTextP)
+				aText += aP.asText();
+			System.out.println(div.asXml());
+			HtmlDivision lab = div.getFirstByXPath("div[@class='question_part_label']");
+			qParts.add(new Question(aText, lab.asText()));
+		}
 	}
 	
-//	public static void main(String[] args) throws FailingHttpStatusCodeException, MalformedURLException, IOException {
-//		Loader ld = new Loader();
-//		ld.parseDatabase(1);
-//		ld.loadQuest(5);
-//		
-//	}
+	public static void main(String[] args) throws FailingHttpStatusCodeException, IOException {
+		Loader ld = new Loader();
+		ld.parseDatabase(1);
+		ld.loadQuest(5);
+		// TODO Lack of Support Issues (No Multichoice, etc)
+		ld.loadQParts("12M.2.SL.TZ2.4");
+		for(Question q : ld.getQParts()) 
+			System.out.println(q.text);
+	}
 	
 }
