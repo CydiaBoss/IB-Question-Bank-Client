@@ -222,7 +222,7 @@ public class Loader {
 	 * 
 	 * @author andre
 	 */
-	private class Question{
+	public class Question{
 		
 		/**
 		 * Texts
@@ -378,9 +378,6 @@ public class Loader {
 					isAns = false;
 					break;
 				}
-			
-			System.out.println(e.asXml() + "\n---\n");
-			
 			// Records Questions
 			if(isQuest)
 				// Details

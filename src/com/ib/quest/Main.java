@@ -3,6 +3,8 @@ package com.ib.quest;
 import java.util.Scanner;
 
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
+import com.ib.quest.Loader.QType;
+import com.ib.quest.Loader.Question;
 
 /**
  * The Main Class
@@ -64,11 +66,28 @@ public class Main {
 			System.exit(-1);
 		}
 		ld.loadQuest(q - 1);
+		// Counter
 		int k = 0;
 		for(String sub : ld.getQues().keySet()) {
 			// Print
 			k++;
 			System.out.println(k + ") " + sub);
+		}
+		//Q Selection
+		int qt = in.nextInt();
+		if(qt <= 0 || qt > k) {
+			System.err.println("Error: Not a valid selection");
+			System.exit(-1);
+		}
+		ld.loadQParts(ld.getQues().keySet().toArray(new String[ld.getQues().keySet().size()])[qt - 1]);
+		for(Question sub : ld.getQParts()) {
+			// Print
+			if(sub.getType().equals(QType.SPEC))
+				System.out.println(sub.getText());
+			else if (sub.getType().equals(QType.QUEST))
+				System.out.println(sub.getLabel() + ") " + sub.getText() + " [" + sub.getMark() + "]");
+			else
+				System.out.println("[ANS] " + sub.getLabel() + ") " + sub.getText());
 		}
 	}
 
