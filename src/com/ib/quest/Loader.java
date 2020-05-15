@@ -13,6 +13,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlDivision;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.gargoylesoftware.htmlunit.html.HtmlHeading2;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlParagraph;
 import com.gargoylesoftware.htmlunit.html.HtmlTableBody;
@@ -21,7 +22,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlTableBody;
  * The Loader will Load the Questions off the website
  * 
  * @author andre
- * @version 1.0.4
+ * @version 1.0.4.1
  */
 public class Loader {
 
@@ -272,7 +273,7 @@ public class Loader {
 		 * The Label
 		 */
 		public Question(String text, String label) {
-			this(text, label, "-1", QType.ANS);
+			this(text, label, "[-1]", QType.ANS);
 		}
 		
 		/**
@@ -282,7 +283,7 @@ public class Loader {
 		 * The Text
 		 */
 		public Question(String text) {
-			this(text, "-1", "-1", QType.SPEC);
+			this(text, "", "[-1]", QType.SPEC);
 		}
 
 		/**
@@ -358,48 +359,64 @@ public class Loader {
 			System.err.println("Error: Question cannot be found");
 			System.exit(-1);
 		}
-		// Get Specification
-		List<HtmlParagraph> specs = questPg.getByXPath("//div[@class='specification']/p");
-		for(HtmlParagraph p : specs) {
-			qParts.add(new Question(p.asText()));
+		// Iterate through descendants to find data
+		boolean isQuest = false,
+				isAns = false;
+		List<HtmlElement> tempList = questPg.getByXPath("//div[@class='page-content container']/div|"
+				  								      + "//div[@class='page-content container']/h2");
+		for(HtmlElement e : tempList) {
+			// Identifies whether the element is part of whatever
+			if(e instanceof HtmlHeading2)
+				if(e.asText().contains("Question")) {
+					isQuest = true;
+					continue;
+				}else if(e.asText().contains("Markscheme")) {
+					isQuest = false;
+					isAns = true;
+					continue;
+				}else{
+					isAns = false;
+					break;
+				}
 			
-			System.out.println(p.asText());
-		}
-		// Get Question
-		List<HtmlDivision> q = questPg.getByXPath("//div[@class='question' and div[@class='marks']]");
-		for(HtmlDivision div : q) {
-			String qText = "";
-			List<HtmlParagraph> qTextP = div.getByXPath("p");
-			for(HtmlParagraph qP : qTextP)
-				qText += qP.asText();
+			System.out.println(e.asXml() + "\n---\n");
 			
-			System.out.println(qText);
-			
-			HtmlDivision lab = div.getFirstByXPath("div[@class='question_part_label']"), 
-						 mark = div.getFirstByXPath("div[@class='marks']");
-			qParts.add(new Question(qText, lab.asText(), mark.asText()));
-		}
-		// Get Answers
-		List<HtmlDivision> ans = questPg.getByXPath("//div[@class='question' and not(div[@class='marks'])]");
-		for(HtmlDivision div : ans) {
-			String aText = "";
-			List<HtmlParagraph> aTextP = div.getByXPath("p");
-			for(HtmlParagraph aP : aTextP)
-				aText += aP.asText();
-			System.out.println(div.asXml());
-			HtmlDivision lab = div.getFirstByXPath("div[@class='question_part_label']");
-			qParts.add(new Question(aText, lab.asText()));
+			// Records Questions
+			if(isQuest)
+				// Details
+				if(e.getAttribute("class").equals("specification")) {
+					List<HtmlParagraph> tList = e.getByXPath("p");
+					for(HtmlParagraph p : tList)
+						qParts.add(new Question(p.asText().trim()));
+				// Actual Question
+				}else{
+					List<HtmlParagraph> tList = e.getByXPath("p");
+					String q = "";
+					for(HtmlParagraph p : tList)
+						q += p.asText().trim();
+					qParts.add(new Question(q, 
+							((HtmlDivision) e.getFirstByXPath("div[@class='question_part_label']")).asText().trim(), 
+							((HtmlDivision) e.getFirstByXPath("div[@class='marks']")).asText().trim()));
+				}
+			// Records Answers
+			else if(isAns) {
+				List<HtmlParagraph> tList = e.getByXPath("p");
+				String a = "";
+				for(HtmlParagraph p : tList)
+					a += p.asText().trim();
+				qParts.add(new Question(a, ((HtmlDivision) e.getFirstByXPath("div[@class='question_part_label']")).asText().trim()));
+			}
 		}
 	}
 	
-	public static void main(String[] args) throws FailingHttpStatusCodeException, IOException {
-		Loader ld = new Loader();
-		ld.parseDatabase(1);
-		ld.loadQuest(5);
-		// TODO Lack of Support Issues (No Multichoice, etc)
-		ld.loadQParts("12M.2.SL.TZ2.4");
-		for(Question q : ld.getQParts()) 
-			System.out.println(q.text);
-	}
+//	public static void main(String[] args) throws FailingHttpStatusCodeException, IOException {
+//		Loader ld = new Loader();
+//		ld.parseDatabase(1);
+//		ld.loadQuest(5);
+//		// TODO Lack of Support Issues (No Multichoice, etc)
+//		ld.loadQParts("12M.2.SL.TZ2.4");
+//		for(Question q : ld.getQParts()) 
+//			System.out.println(q.label + ") " + q.text);
+//	}
 	
 }
