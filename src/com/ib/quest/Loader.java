@@ -1,6 +1,7 @@
 package com.ib.quest;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlParagraph;
 import com.gargoylesoftware.htmlunit.html.HtmlTableBody;
 
+import com.ib.quest.gui.Error;
+
 /**
  * The Loader will Load the Questions off the website
  * 
@@ -31,12 +34,18 @@ public class Loader {
 	private HtmlPage pg;
 	
 	// Web Database
-	private String ibDB = "https://www.ibdocuments.com/IB%20QUESTIONBANKS/4.%20Fourth%20Edition/";
+	private String ibDB = "https://www.ibdocuments.com/IB%20QUESTIONBANKS/4.%20Fourth%20Edition/index";
+	
+	// Connection Status
+	private boolean isConnected;
 	
 	/**
 	 * Creates the Loader Object
+	 * @throws MalformedURLException 
 	 */
 	public Loader(){
+		// Inital Status
+		isConnected = false;
 		// Remove Error Msg
 		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		java.util.logging.Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF); 
@@ -47,8 +56,7 @@ public class Loader {
 		c.getOptions().setUseInsecureSSL(true);
 		c.getOptions().setCssEnabled(false);
 		c.getOptions().setAppletEnabled(true);
-		c.getOptions().setJavaScriptEnabled(false);
-		c.getOptions().setActiveXNative(true);
+		c.getOptions().setJavaScriptEnabled(true);
 		c.getOptions().setPrintContentOnFailingStatusCode(false);
 		c.getOptions().setThrowExceptionOnFailingStatusCode(false);
 		c.getOptions().setThrowExceptionOnScriptError(false);
@@ -56,9 +64,13 @@ public class Loader {
 		try {
 			pg = c.getPage(ibDB);
 		} catch (FailingHttpStatusCodeException | IOException e) {
-			System.err.println("Error: Failed to connect to website: " + ibDB);
+			Error.throwError("Connection to Website Failed. Check Internet Connection.", true);
+			isConnected = false;
+			return;
 		}
+		isConnected = true;
 		// Loads the Links
+		c.waitForBackgroundJavaScript(500);
 		loadLinks();
 	}
 	
@@ -77,12 +89,18 @@ public class Loader {
 	
 	/**
 	 * Load all links from Main
+	 * @throws IOException 
 	 */
 	private void loadLinks() {
-		// Retrieves the Link Location
+		// The Link Location
 		HtmlDivision div = pg.getFirstByXPath("//div[@class='row services']");
+		// Error 403 Forbidden (DMCA Takedown)
+		if(div == null) {
+			Error.throwError("A DMCA Takedown order has been issued. THe Databases are down.", true);
+			isConnected = false;
+			return;
+		}
 		// Copy the Links down
-		// TODO Something wrong?
 		for(HtmlElement a : div.getHtmlElementDescendants()) {
 			if(!(a instanceof HtmlAnchor))
 				continue;
@@ -119,8 +137,9 @@ public class Loader {
 		try {
 			dbPage = links.get(index).click();
 		} catch (IOException e) {
-			System.err.println("Error: Database cannot be found");
-			System.exit(-2);
+			Error.throwError("Invalid Links. Please check to make sure you have the latest software.", true);
+			isConnected = false;
+			return;
 		}
 		HtmlTableBody body = dbPage.getFirstByXPath("//table[@class='table']/tbody");
 		for(HtmlElement item : body.getHtmlElementDescendants()) {
@@ -158,8 +177,9 @@ public class Loader {
 		try {
 			quests = subj.get(index).click();
 		} catch (IOException e) {
-			System.err.println("Error: Subject cannot be found");
-			System.exit(-3);
+			Error.throwError("Invalid Links. Please check to make sure you have the latest software.", true);
+			isConnected = false;
+			return;
 		}
 		// Detection
 		List<HtmlElement> rawQues = quests.getByXPath("//div[@class='module' and h3='Directly related questions']/ul/li");
@@ -355,8 +375,9 @@ public class Loader {
 		try {
 			questPg = questions.get(ID).click();
 		} catch (IOException e) {
-			System.err.println("Error: Question cannot be found");
-			System.exit(-1);
+			Error.throwError("Invalid Links. Please check to make sure you have the latest software.", true);
+			isConnected = false;
+			return;
 		}
 		// Iterate through descendants to find data
 		boolean isQuest = false,
@@ -404,15 +425,5 @@ public class Loader {
 			}
 		}
 	}
-	
-//	public static void main(String[] args) throws FailingHttpStatusCodeException, IOException {
-//		Loader ld = new Loader();
-//		ld.parseDatabase(1);
-//		ld.loadQuest(5);
-//		// TODO Lack of Support Issues (No Multichoice, etc)
-//		ld.loadQParts("12M.2.SL.TZ2.4");
-//		for(Question q : ld.getQParts()) 
-//			System.out.println(q.label + ") " + q.text);
-//	}
 	
 }

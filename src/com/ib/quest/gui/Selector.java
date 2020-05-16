@@ -5,6 +5,8 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
+
 import javax.swing.JButton;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -42,6 +44,7 @@ public class Selector {
 	 */
 	private void initialize() {
 		main = new JFrame("IB Question Bank Client");
+		main.setIconImage(Toolkit.getDefaultToolkit().getImage(Error.class.getResource("/img/IBRR.png")));
 		main.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		main.setResizable(false);
 		// TODO Will Replace
