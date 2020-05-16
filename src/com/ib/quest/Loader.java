@@ -58,7 +58,6 @@ public class Loader {
 		} catch (FailingHttpStatusCodeException | IOException e) {
 			System.err.println("Error: Failed to connect to website: " + ibDB);
 		}
-		c.waitForBackgroundJavaScript(500);
 		// Loads the Links
 		loadLinks();
 	}
@@ -81,9 +80,9 @@ public class Loader {
 	 */
 	private void loadLinks() {
 		// Retrieves the Link Location
-		HtmlDivision div = pg.getElementById("services")
-						     .getFirstByXPath("//div[@class='row services']");
+		HtmlDivision div = pg.getFirstByXPath("//div[@class='row services']");
 		// Copy the Links down
+		// TODO Something wrong?
 		for(HtmlElement a : div.getHtmlElementDescendants()) {
 			if(!(a instanceof HtmlAnchor))
 				continue;
