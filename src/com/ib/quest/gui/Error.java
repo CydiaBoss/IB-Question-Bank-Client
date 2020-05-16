@@ -17,14 +17,29 @@ import javax.swing.ImageIcon;
 import java.awt.Font;
 import javax.swing.JButton;
 
+/**
+ * Error Framework
+ * 
+ * @author andre
+ * @version 1.0.4.3
+ */
 public class Error extends JFrame {
 
 	private static final long serialVersionUID = -4335766057253805362L;
 	
 	private JPanel contentPane;
 	
+	/**
+	 * Do not change directly
+	 */
 	private static boolean controller = false;
 	
+	/**
+	 * Internal Lock Mechanism
+	 * 
+	 * @param c
+	 * Toggle
+	 */
 	private static synchronized void setCont(boolean c) {
 		controller = c;
 	}

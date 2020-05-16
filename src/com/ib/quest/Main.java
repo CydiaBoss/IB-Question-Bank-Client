@@ -14,7 +14,7 @@ import com.ib.quest.gui.Selector;
  * The Main Class
  * 
  * @author andre
- * @version 1.0.4
+ * @version 1.0.4.3
  */
 public class Main {
 

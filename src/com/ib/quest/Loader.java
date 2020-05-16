@@ -25,7 +25,7 @@ import com.ib.quest.gui.Error;
  * The Loader will Load the Questions off the website
  * 
  * @author andre
- * @version 1.0.4.1
+ * @version 1.0.4.3
  */
 public class Loader {
 
@@ -34,7 +34,7 @@ public class Loader {
 	private HtmlPage pg;
 	
 	// Web Database
-	private String ibDB = "https://www.ibdocuments.com/IB%20QUESTIONBANKS/4.%20Fourth%20Edition/index";
+	private String ibDB = "https://www.ibdocuments.com/IB%20QUESTIONBANKS/4.%20Fourth%20Edition";
 	
 	// Connection Status
 	private boolean isConnected;
@@ -150,16 +150,20 @@ public class Loader {
 	/**
 	 * Entering a Database
 	 * 
-	 * @param index
+	 * @param a
 	 * The database in the ArrayList
 	 */
-	public void parseDatabase(int index) {
+	public void parseDatabase(HtmlAnchor a) {
 		// Clears the List to host the new Database
 		subj.clear();
 		// Loads the Page
 		HtmlPage dbPage = null;
+		// Verify Anchor
+		if(!links.contains(a))
+			lockdown("Internal Error Detected", true);
+		// Proceed
 		try {
-			dbPage = links.get(index).click();
+			dbPage = a.click();
 		} catch (IOException e) {
 			lockdown("Invalid Links. Please check to make sure you have the latest software.", true);
 		}
@@ -191,13 +195,17 @@ public class Loader {
 	 * 
 	 * @param index
 	 */
-	public void loadQuest(int index) {
+	public void loadQuest(HtmlAnchor a) {
 		// Clear List
 		questions.clear();
 		// Start Assembling
 		HtmlPage quests = null;
+		// Verify Anchor
+		if(!subj.contains(a))
+			lockdown("Internal Error Detected", true);
+		// Continue
 		try {
-			quests = subj.get(index).click();
+			quests = a.click();
 		} catch (IOException e) {
 			lockdown("Invalid Links. Please check to make sure you have the latest software.", true);
 		}
@@ -397,6 +405,9 @@ public class Loader {
 		} catch (IOException e) {
 			lockdown("Invalid Links. Please check to make sure you have the latest software.", true);
 		}
+		// Verify
+		if(questPg == null)
+			lockdown("Internal Error Detected", true);
 		// Iterate through descendants to find data
 		boolean isQuest = false,
 				isAns = false;

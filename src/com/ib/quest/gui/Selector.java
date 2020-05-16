@@ -20,6 +20,7 @@ import com.ib.quest.Loader;
  * Selector Window
  * 
  * @author andre
+ * @version 1.0.4.3
  */
 public class Selector {
 
@@ -47,7 +48,6 @@ public class Selector {
 		main.setIconImage(Toolkit.getDefaultToolkit().getImage(Error.class.getResource("/img/IBRR.png")));
 		main.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		main.setResizable(false);
-		// TODO Will Replace
 		main.setBounds(100, 100, 300, 40 + 40 * ld.getDBs().size());
 		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		main.getContentPane().setLayout(new BorderLayout(0, 0));
@@ -71,9 +71,14 @@ public class Selector {
 		// Button Addition
 		for(HtmlAnchor a : ld.getDBs()) {
 			JButton bt = new JButton(a.asText().trim());
-			bt.addActionListener(e -> {/* TODO Rebuild Window */});
+			bt.addActionListener(e -> {
+				subjSelection(a);
+			});
 			panel.add(bt);
 		}
 	}
 
+	private synchronized void subjSelection(HtmlAnchor anc) {
+		// TODO
+	}
 }
