@@ -5,6 +5,9 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import com.ib.quest.Main;
+
 import java.awt.Toolkit;
 import java.awt.Component;
 
@@ -20,10 +23,29 @@ public class Error extends JFrame {
 	
 	private JPanel contentPane;
 	
-	public static synchronized void throwError(String txt, boolean crash) {
+	private static boolean controller = false;
+	
+	private static synchronized void setCont(boolean c) {
+		controller = c;
+	}
+	
+	/**
+	 * Throws Error
+	 * 
+	 * @param txt
+	 * Message
+	 * @param crash
+	 * Shutdown?
+	 */
+	public static void throwError(String txt, boolean crash) {
+		setCont(true);
 		Thread t = new Thread(() -> {
+			Main.lck.lock();
 			new Error(txt, crash)
 			.setVisible(true);
+			// Stops until reset
+			while(controller);
+			Main.lck.unlock();
 		});
 		t.start();
 	}
@@ -71,6 +93,8 @@ public class Error extends JFrame {
 			this.dispose();
 			if (crash) 
 				System.exit(0);
+			else
+				setCont(false);
 		});
 		panel.add(okayBtn, BorderLayout.CENTER);
 		

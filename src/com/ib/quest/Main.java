@@ -1,5 +1,8 @@
 package com.ib.quest;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 //import java.util.Scanner;
 //
 //import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
@@ -15,6 +18,11 @@ import com.ib.quest.gui.Selector;
  */
 public class Main {
 
+	/**
+	 * Lock
+	 */
+	public static final Lock lck = new ReentrantLock();
+	
 	/**
 	 * The Loader
 	 */

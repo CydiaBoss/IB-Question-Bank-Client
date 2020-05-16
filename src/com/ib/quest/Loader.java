@@ -40,6 +40,34 @@ public class Loader {
 	private boolean isConnected;
 	
 	/**
+	 * Test whether a connection was established
+	 * 
+	 * @return
+	 * Status
+	 */
+	public boolean status() {
+		return isConnected;
+	}
+	
+	/**
+	 * Lock w/ Countdown and Error<br>
+	 * Automatically fails connection, therefore only use to fail
+	 */
+	private void lockdown(String txt, boolean crash) {
+		// Error
+		Error.throwError(txt, crash);
+		// Shutdown
+		isConnected = false;
+		try {
+			Thread.sleep(1500);
+			Main.lck.lock();
+		}catch(InterruptedException e) {
+		}finally{
+			Main.lck.unlock();
+		}
+	}
+	
+	/**
 	 * Creates the Loader Object
 	 * @throws MalformedURLException 
 	 */
@@ -64,9 +92,7 @@ public class Loader {
 		try {
 			pg = c.getPage(ibDB);
 		} catch (FailingHttpStatusCodeException | IOException e) {
-			Error.throwError("Connection to Website Failed. Check Internet Connection.", true);
-			isConnected = false;
-			return;
+			lockdown("Connection to Website Failed. Check Internet Connection.", true);
 		}
 		isConnected = true;
 		// Loads the Links
@@ -96,9 +122,7 @@ public class Loader {
 		HtmlDivision div = pg.getFirstByXPath("//div[@class='row services']");
 		// Error 403 Forbidden (DMCA Takedown)
 		if(div == null) {
-			Error.throwError("A DMCA Takedown order has been issued. THe Databases are down.", true);
-			isConnected = false;
-			return;
+			lockdown("A DMCA Takedown order has been issued. The Databases are down.", true);
 		}
 		// Copy the Links down
 		for(HtmlElement a : div.getHtmlElementDescendants()) {
@@ -137,9 +161,7 @@ public class Loader {
 		try {
 			dbPage = links.get(index).click();
 		} catch (IOException e) {
-			Error.throwError("Invalid Links. Please check to make sure you have the latest software.", true);
-			isConnected = false;
-			return;
+			lockdown("Invalid Links. Please check to make sure you have the latest software.", true);
 		}
 		HtmlTableBody body = dbPage.getFirstByXPath("//table[@class='table']/tbody");
 		for(HtmlElement item : body.getHtmlElementDescendants()) {
@@ -177,9 +199,7 @@ public class Loader {
 		try {
 			quests = subj.get(index).click();
 		} catch (IOException e) {
-			Error.throwError("Invalid Links. Please check to make sure you have the latest software.", true);
-			isConnected = false;
-			return;
+			lockdown("Invalid Links. Please check to make sure you have the latest software.", true);
 		}
 		// Detection
 		List<HtmlElement> rawQues = quests.getByXPath("//div[@class='module' and h3='Directly related questions']/ul/li");
@@ -375,9 +395,7 @@ public class Loader {
 		try {
 			questPg = questions.get(ID).click();
 		} catch (IOException e) {
-			Error.throwError("Invalid Links. Please check to make sure you have the latest software.", true);
-			isConnected = false;
-			return;
+			lockdown("Invalid Links. Please check to make sure you have the latest software.", true);
 		}
 		// Iterate through descendants to find data
 		boolean isQuest = false,
