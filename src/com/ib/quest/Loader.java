@@ -178,7 +178,8 @@ public class Loader {
 			if(item.getAttribute("style").equals(HtmlElement.ATTRIBUTE_NOT_DEFINED))
 				continue;
 			// Stores the Topics
-			subj.add(item.getFirstByXPath("a"));
+			// TODO Check if still compatible with online
+			subj.add((HtmlAnchor) item);
 		}
 	}
 	
