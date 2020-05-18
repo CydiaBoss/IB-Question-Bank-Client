@@ -2,6 +2,7 @@ package com.ib.quest;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,9 @@ public class Loader {
 	
 	// Web Database
 	private String ibDB = "https://www.ibdocuments.com/IB%20QUESTIONBANKS/4.%20Fourth%20Edition";
+	
+	// Offline
+	private URL ibDBOff = Loader.class.getResource("/test/main.html");
 	
 	// Connection Status
 	private boolean isConnected;
@@ -90,7 +94,8 @@ public class Loader {
 		c.getOptions().setThrowExceptionOnScriptError(false);
 		// Get Page
 		try {
-			pg = c.getPage(ibDB);
+			// TODO Changed
+			pg = c.getPage(ibDBOff);
 		} catch (FailingHttpStatusCodeException | IOException e) {
 			lockdown("Connection to Website Failed. Check Internet Connection.", true);
 		}
@@ -454,5 +459,4 @@ public class Loader {
 			}
 		}
 	}
-	
 }

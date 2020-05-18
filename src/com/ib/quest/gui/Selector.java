@@ -48,7 +48,7 @@ public class Selector {
 		main.setIconImage(Toolkit.getDefaultToolkit().getImage(Error.class.getResource("/img/IBRR.png")));
 		main.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		main.setResizable(false);
-		main.setBounds(100, 100, 300, 40 + 40 * ld.getDBs().size());
+		main.setBounds(100, 100, 300, 40 + 60 * ld.getDBs().size());
 		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		main.getContentPane().setLayout(new BorderLayout(0, 0));
 		
@@ -78,6 +78,12 @@ public class Selector {
 		}
 	}
 
+	/**
+	 * Regenerating the GUI for subject
+	 * 
+	 * @param anc
+	 * 
+	 */
 	private synchronized void subjSelection(HtmlAnchor anc) {
 		// TODO
 	}
