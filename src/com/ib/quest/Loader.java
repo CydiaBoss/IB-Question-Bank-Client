@@ -95,14 +95,27 @@ public class Loader {
 		// Get Page
 		try {
 			// TODO Changed
-			pg = c.getPage(ibDBOff);
-		} catch (FailingHttpStatusCodeException | IOException e) {
-			lockdown("Connection to Website Failed. Check Internet Connection.", true);
+			pg = c.getPage(ibDB);
+		}catch (FailingHttpStatusCodeException | IOException e) {
+			lockdown("Connection to Website Failed. Check Internet Connection. Switching to Offline.", false);
+			offline();
 		}
 		isConnected = true;
 		// Loads the Links
 		c.waitForBackgroundJavaScript(500);
 		loadLinks();
+	}
+	
+	/**
+	 * Switch to Offline
+	 */
+	public void offline() {
+		isConnected = false;
+		try {
+			pg = c.getPage(ibDBOff);
+		} catch (FailingHttpStatusCodeException | IOException e1) {
+			lockdown("Offline Database cannot be found.", true);
+		}
 	}
 	
 	//- Links -//
@@ -127,7 +140,9 @@ public class Loader {
 		HtmlDivision div = pg.getFirstByXPath("//div[@class='row services']");
 		// Error 403 Forbidden (DMCA Takedown)
 		if(div == null) {
-			lockdown("A DMCA Takedown order has been issued. The Databases are down.", true);
+			lockdown("A DMCA Takedown order has been issued. The Databases are down. Switching to Offline.", false);
+			offline();
+			div = pg.getFirstByXPath("//div[@class='row services']");
 		}
 		// Copy the Links down
 		for(HtmlElement a : div.getHtmlElementDescendants()) {
