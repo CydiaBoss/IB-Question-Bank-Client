@@ -2,7 +2,6 @@ package com.ib.quest;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,12 +33,6 @@ public class Loader {
 	private WebClient c;
 	private HtmlPage pg;
 	
-	// Web Database
-	private String ibDB = "https://www.ibdocuments.com/IB%20QUESTIONBANKS/4.%20Fourth%20Edition";
-	
-	// Offline
-	private URL ibDBOff = Loader.class.getResource("/test/main.html");
-	
 	/**
 	 * Creates the Loader Object
 	 * @throws MalformedURLException 
@@ -61,7 +54,7 @@ public class Loader {
 		c.getOptions().setThrowExceptionOnScriptError(false);
 		// Get Online Page
 		try {
-			pg = c.getPage(ibDB);
+			pg = c.getPage(Constants.Database.IBDBON);
 		// Switch to Offline
 		}catch (FailingHttpStatusCodeException | IOException e) {
 			Error.throwError("Connection to Website Failed. Check Internet Connection. Switching to Offline.", false);
@@ -77,7 +70,7 @@ public class Loader {
 	public void offline() {
 		// Try for Offline
 		try {
-			pg = c.getPage(ibDBOff);
+			pg = c.getPage(Constants.Database.IBDBOFF);
 		// Nothing works
 		} catch (FailingHttpStatusCodeException | IOException e1) {
 			Error.throwError("Offline Database cannot be found.", true);

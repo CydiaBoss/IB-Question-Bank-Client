@@ -77,7 +77,6 @@ public class BasicQuestion extends JPanel {
 		quitBtn.addActionListener(e -> {
 			m.getContentPane().remove(this);
 			m.getContentPane().add(pre, BorderLayout.CENTER);
-			m.setBounds(x, y, 400, 400);
 			m.revalidate();
 		});
 		panel_1.add(quitBtn);
@@ -91,18 +90,18 @@ public class BasicQuestion extends JPanel {
 		panel_1.add(horizontalBox);
 		
 		JButton bacBtn = new JButton("Back");
-		bacBtn.addActionListener(e -> {
-			c.previous(panel_2);
-		});
+		bacBtn.addActionListener(e -> 
+			c.previous(panel_2)
+		);
 		horizontalBox.add(bacBtn);
 		
 		Component horizontalGlue = Box.createHorizontalGlue();
 		horizontalBox.add(horizontalGlue);
 		
 		JButton nextBtn = new JButton("Next");
-		nextBtn.addActionListener(e -> {
-			c.next(panel_2);
-		});
+		nextBtn.addActionListener(e -> 
+			c.next(panel_2)
+		);
 		horizontalBox.add(nextBtn);
 		
 		/* Generate all Question */
@@ -138,8 +137,7 @@ public class BasicQuestion extends JPanel {
 			
 			JTextArea textPane = new JTextArea();
 			textPane.setFont(new Font("Tahoma", Font.PLAIN, 12));
-			textPane.setWrapStyleWord(false);
-			textPane.setBounds(x, y, m.getWidth() - 40, m.getHeight() - 100);
+			textPane.setWrapStyleWord(true);
 			panel_3.add(textPane, BorderLayout.CENTER);
 			
 			Component verticalStrut_2 = Box.createVerticalStrut(20);

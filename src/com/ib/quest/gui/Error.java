@@ -6,11 +6,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import com.ib.quest.Main;
-
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.Component;
 
 import javax.swing.Box;
@@ -19,6 +17,7 @@ import javax.swing.ImageIcon;
 import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 /**
  * Error Framework
@@ -32,22 +31,7 @@ public class Error extends JFrame {
 	
 	private JPanel contentPane;
 	
-	/**
-	 * Do not change directly
-	 */
-	private static boolean controller = false;
-	
-	/**
-	 * Internal Lock Mechanism
-	 * 
-	 * @param c
-	 * Toggle
-	 */
-	private static synchronized void setCont(boolean c) {
-		controller = c;
-	}
-	
-	// TODO Fix Errors with Error Prompt
+	// TODO Figure out wtf is causing blank error prompts
 	
 	/**
 	 * Throws Error and pauses all execution
@@ -58,29 +42,10 @@ public class Error extends JFrame {
 	 * Shutdown?
 	 */
 	public static void throwError(String txt, boolean crash) {
-		setCont(true);
 		// Branches another thread
-		Thread t = new Thread(() -> {
-			Main.lck.lock();
-			new Error(txt, crash)
-			.setVisible(true);
-			// Stops until reset
-			// My questionable locking mechanism requires a 1 tick delay for some reason
-			while(controller)
-				try {
-					Thread.sleep(1);
-				} catch (InterruptedException e) {}
-			Main.lck.unlock();
+		SwingUtilities.invokeLater(() -> {
+			new Error(txt, crash);
 		});
-		t.start();
-		// Shutdown
-		try {
-			Thread.sleep(15);
-			Main.lck.lock();
-		} catch (InterruptedException e) {
-		}finally{
-			Main.lck.unlock();
-		}
 	}
 	
 	/**
@@ -88,47 +53,19 @@ public class Error extends JFrame {
 	 */
 	private Error(String txt, boolean crash) {
 		setTitle("Error");
+		setResizable(false);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Error.class.getResource("/img/IBRR.png")));
+
 		if(crash)
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		else
 			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		// Add a close action
-		// Unfortunate used a lot of lines just for one function
-		addWindowListener(new WindowListener() {
-			/* Unused */
-			@Override
-			public void windowActivated(WindowEvent arg0) {}
-
-			/**
-			 * Unlocks the main thread when the error dialog box is closed
-			 */
-			@Override
-			public void windowClosed(WindowEvent arg0) {
-				setCont(false);
-			}
-
-			/* Unused */
-			@Override
-			public void windowClosing(WindowEvent arg0) {}
-
-			@Override
-			public void windowDeactivated(WindowEvent arg0) {}
-
-			@Override
-			public void windowDeiconified(WindowEvent arg0) {}
-
-			@Override
-			public void windowIconified(WindowEvent arg0) {}
-
-			@Override
-			public void windowOpened(WindowEvent arg0) {}
-		});
-		setBounds(100, 100, 350, 150);
+		
+		setBounds(100, 100, 350, 160);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
-		setContentPane(contentPane);
+		getContentPane().add(contentPane);
 		
 		Component horizontalStrut = Box.createHorizontalStrut(20);
 		contentPane.add(horizontalStrut, BorderLayout.WEST);
@@ -160,16 +97,16 @@ public class Error extends JFrame {
 		
 		JButton okayBtn = new JButton("OK");
 		okayBtn.addActionListener(e -> {
-			this.setVisible(false);
-			this.dispose();
+			setVisible(false);
+			dispose();
 			if (crash) 
 				System.exit(0);
-			else
-				setCont(false);
 		});
 		panel.add(okayBtn, BorderLayout.CENTER);
 		
 		Component verticalStrut_2 = Box.createVerticalStrut(15);
 		panel.add(verticalStrut_2, BorderLayout.SOUTH);
+
+		setVisible(true);
 	}
 }

@@ -5,7 +5,6 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 
 import javax.swing.JButton;
@@ -21,6 +20,9 @@ import com.ib.quest.gui.questions.BasicQuestion;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.BevelBorder;
+
+import com.ib.quest.Constants;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ButtonGroup;
@@ -28,6 +30,8 @@ import javax.swing.DefaultListModel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingConstants;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.JLabel;
+import java.awt.Font;
 
 /**
  * Selector Window
@@ -58,23 +62,6 @@ public class Selector {
 		});
 	}
 	
-	// TODO Standardizes the sizes
-	
-	/**
-	 * All sizes for each panel
-	 */
-	private Rectangle[] sizes = new Rectangle[4];	
-	
-	/**
-	 * Gets the sizes for each panel
-	 * 
-	 * @return
-	 * The sizes
-	 */
-	public Rectangle[] getSizes() {
-		return sizes;
-	}
-	
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -84,8 +71,7 @@ public class Selector {
 		main.setIconImage(Toolkit.getDefaultToolkit().getImage(Error.class.getResource("/img/IBRR.png")));
 		main.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		main.setResizable(false);
-		sizes[0] = new Rectangle(100, 100, 300, 40 + 60 * ld.getDBs().size());
-		main.setBounds(sizes[0]);
+		main.setSize(Constants.Size.SUB_W , Constants.Size.SUB_H + Constants.Size.INT_SIZE * ld.getDBs().size());
 		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		main.getContentPane().setLayout(new BorderLayout(0, 0));
 		
@@ -119,18 +105,17 @@ public class Selector {
 	 * Regenerating the GUI for subject
 	 * 
 	 * @param anc
-	 * 
+	 * @wbp.parser.entryPoint
 	 */
 	private synchronized void topicSelection(HtmlAnchor anc) {
 		// Load the new 
 		ld.parseDatabase(anc);
 		// Create New Panel
 		topic = new JPanel();
-		topic.setLayout(new GridLayout(0, 1, 0, 20));
-		topic.setBounds(main.getX(), main.getY(), 360, 160);
+		topic.setLayout(new BorderLayout(0, 10));
 		
 		JPanel panel = new JPanel();
-		topic.add(panel);
+		topic.add(panel, BorderLayout.CENTER);
 		panel.setLayout(new BorderLayout(0, 0));
 		
 		JList<String> list = new JList<>();
@@ -146,10 +131,10 @@ public class Selector {
 		panel.add(scrollPane, BorderLayout.CENTER);
 		
 		JPanel panel_1 = new JPanel();
-		topic.add(panel_1);
+		topic.add(panel_1, BorderLayout.SOUTH);
 		panel_1.setLayout(new BorderLayout(0, 0));
 		
-		Component verticalStrut_1 = Box.createVerticalStrut(25);
+		Component verticalStrut_1 = Box.createVerticalStrut(30);
 		panel_1.add(verticalStrut_1, BorderLayout.NORTH);
 		
 		JPanel panel_2 = new JPanel();
@@ -161,7 +146,8 @@ public class Selector {
 		backBtn.addActionListener(e -> {
 			main.getContentPane().remove(topic);
 			main.getContentPane().add(subj, BorderLayout.CENTER);
-			main.setBounds(sizes[0]);
+			main.setSize(Constants.Size.SUB_W , 
+					Constants.Size.SUB_H + Constants.Size.INT_SIZE * ld.getDBs().size());
 			main.revalidate();
 		});
 		panel_2.add(backBtn);
@@ -181,8 +167,11 @@ public class Selector {
 		// Updates the Frame
 		main.getContentPane().remove(subj);
 		main.getContentPane().add(topic, BorderLayout.CENTER);
-		sizes[1] = new Rectangle(main.getX(), main.getY(), 400, 200);
-		main.setBounds(sizes[1]);
+		
+		JLabel instruLbl = new JLabel("Please select a topic.");
+		instruLbl.setFont(new Font("Tahoma", Font.BOLD, 14));
+		topic.add(instruLbl, BorderLayout.NORTH);
+		main.setSize(Constants.Size.STAN_W, Constants.Size.STAN_H);
 		main.revalidate();
 	}
 	
@@ -191,7 +180,6 @@ public class Selector {
 	 * 
 	 * @param index
 	 * Selected Topic
-	 * @wbp.parser.entryPoint
 	 */
 	private synchronized void quesSelection(int index) {
 		// Load New Question Bank
@@ -287,12 +275,9 @@ public class Selector {
 		backBtn.addActionListener(e -> {
 			main.getContentPane().remove(quest);
 			main.getContentPane().add(topic, BorderLayout.CENTER);
-			main.setBounds(sizes[1]);
 			main.revalidate();
 		});
 		panel_2.add(backBtn);
-		
-		sizes[3] = new Rectangle(main.getX(), main.getY(), 600, 450);
 		
 		JButton stBtn = new JButton("Start");
 		stBtn.addActionListener(e -> {
@@ -304,8 +289,6 @@ public class Selector {
 				main.getContentPane().remove(quest);
 				main.getContentPane().add(new BasicQuestion(main.getX(), main.getY(), ld, 
 						((String) tab.getValueAt(tab.getSelectedRow(), 0)).trim(), main, quest), BorderLayout.CENTER);
-				
-				main.setBounds(sizes[3]);
 				main.revalidate();
 			}
 		});
@@ -314,8 +297,6 @@ public class Selector {
 		// Updates the Frame
 		main.getContentPane().remove(topic);
 		main.getContentPane().add(quest, BorderLayout.CENTER);
-		sizes[2] = new Rectangle(main.getX(), main.getY(), 400, 400);
-		main.setBounds(sizes[2]);
 		main.revalidate();
 	}
 }
