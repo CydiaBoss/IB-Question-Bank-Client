@@ -1,8 +1,5 @@
 package com.ib.quest;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -16,11 +13,6 @@ import com.ib.quest.gui.Error;
  * @version 1.0.4.5
  */
 public class Main {
-
-	/**
-	 * The Main Lock
-	 */
-	public static final Lock lck = new ReentrantLock();
 	
 	/**
 	 * The Loader
@@ -37,6 +29,7 @@ public class Main {
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
 			Error.throwError("Internal Error Detected", true);
+			
 		}
 		// Setup
 		ld = new Loader();	
