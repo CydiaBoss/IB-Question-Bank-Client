@@ -47,6 +47,8 @@ public class Error extends JFrame {
 		controller = c;
 	}
 	
+	// TODO Fix Errors with Error Prompt
+	
 	/**
 	 * Throws Error and pauses all execution
 	 * 

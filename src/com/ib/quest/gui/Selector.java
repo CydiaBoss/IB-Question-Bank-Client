@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 
 import javax.swing.JButton;
@@ -57,6 +58,23 @@ public class Selector {
 		});
 	}
 	
+	// TODO Standardizes the sizes
+	
+	/**
+	 * All sizes for each panel
+	 */
+	private Rectangle[] sizes = new Rectangle[4];	
+	
+	/**
+	 * Gets the sizes for each panel
+	 * 
+	 * @return
+	 * The sizes
+	 */
+	public Rectangle[] getSizes() {
+		return sizes;
+	}
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -66,7 +84,8 @@ public class Selector {
 		main.setIconImage(Toolkit.getDefaultToolkit().getImage(Error.class.getResource("/img/IBRR.png")));
 		main.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		main.setResizable(false);
-		main.setBounds(100, 100, 300, 40 + 60 * ld.getDBs().size());
+		sizes[0] = new Rectangle(100, 100, 300, 40 + 60 * ld.getDBs().size());
+		main.setBounds(sizes[0]);
 		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		main.getContentPane().setLayout(new BorderLayout(0, 0));
 		
@@ -142,7 +161,7 @@ public class Selector {
 		backBtn.addActionListener(e -> {
 			main.getContentPane().remove(topic);
 			main.getContentPane().add(subj, BorderLayout.CENTER);
-			main.setBounds(main.getX(), main.getY(), 300, 40 + 60 * ld.getDBs().size());
+			main.setBounds(sizes[0]);
 			main.revalidate();
 		});
 		panel_2.add(backBtn);
@@ -162,7 +181,8 @@ public class Selector {
 		// Updates the Frame
 		main.getContentPane().remove(subj);
 		main.getContentPane().add(topic, BorderLayout.CENTER);
-		main.setBounds(main.getX(), main.getY(), 400, 200);
+		sizes[1] = new Rectangle(main.getX(), main.getY(), 400, 200);
+		main.setBounds(sizes[1]);
 		main.revalidate();
 	}
 	
@@ -267,18 +287,25 @@ public class Selector {
 		backBtn.addActionListener(e -> {
 			main.getContentPane().remove(quest);
 			main.getContentPane().add(topic, BorderLayout.CENTER);
-			main.setBounds(main.getX(), main.getY(), 400, 200);
+			main.setBounds(sizes[1]);
 			main.revalidate();
 		});
 		panel_2.add(backBtn);
 		
+		sizes[3] = new Rectangle(main.getX(), main.getY(), 600, 450);
+		
 		JButton stBtn = new JButton("Start");
 		stBtn.addActionListener(e -> {
 			if(selRdBtn.isSelected()) {
+				if(tab.getSelectedRow() < 0) {
+					Error.throwError("Please select a Question", false);
+					return;
+				}
 				main.getContentPane().remove(quest);
 				main.getContentPane().add(new BasicQuestion(main.getX(), main.getY(), ld, 
-						((String) tab.getValueAt(tab.getSelectedRow(), 0)).trim()), BorderLayout.CENTER);
-				main.setBounds(main.getX(), main.getY(), 400, 450);
+						((String) tab.getValueAt(tab.getSelectedRow(), 0)).trim(), main, quest), BorderLayout.CENTER);
+				
+				main.setBounds(sizes[3]);
 				main.revalidate();
 			}
 		});
@@ -287,7 +314,8 @@ public class Selector {
 		// Updates the Frame
 		main.getContentPane().remove(topic);
 		main.getContentPane().add(quest, BorderLayout.CENTER);
-		main.setBounds(main.getX(), main.getY(), 400, 300);
+		sizes[2] = new Rectangle(main.getX(), main.getY(), 400, 400);
+		main.setBounds(sizes[2]);
 		main.revalidate();
 	}
 }
