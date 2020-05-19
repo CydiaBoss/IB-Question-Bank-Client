@@ -23,10 +23,10 @@ import com.gargoylesoftware.htmlunit.html.HtmlTableBody;
 import com.ib.quest.gui.Error;
 
 /**
- * The Loader will Load the Questions off the website
+ * The Loader will Load the Questions off the website or the offline database
  * 
- * @author andre
- * @version 1.0.4.3
+ * @author Andrew Wang
+ * @version 1.0.4.5
  */
 public class Loader {
 
@@ -40,44 +40,11 @@ public class Loader {
 	// Offline
 	private URL ibDBOff = Loader.class.getResource("/test/main.html");
 	
-	// Connection Status
-	private boolean isConnected;
-	
-	/**
-	 * Test whether a connection was established
-	 * 
-	 * @return
-	 * Status
-	 */
-	public boolean status() {
-		return isConnected;
-	}
-	
-	/**
-	 * Lock w/ Countdown and Error<br>
-	 * Automatically fails connection, therefore only use to fail
-	 */
-	private void lockdown(String txt, boolean crash) {
-		// Error
-		Error.throwError(txt, crash);
-		// Shutdown
-		isConnected = false;
-		try {
-			Thread.sleep(1500);
-			Main.lck.lock();
-		}catch(InterruptedException e) {
-		}finally{
-			Main.lck.unlock();
-		}
-	}
-	
 	/**
 	 * Creates the Loader Object
 	 * @throws MalformedURLException 
 	 */
 	public Loader(){
-		// Inital Status
-		isConnected = false;
 		// Remove Error Msg
 		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		java.util.logging.Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF); 
@@ -85,24 +52,22 @@ public class Loader {
 		// Create Objs
 		c = new WebClient();
 		// Settings
-		c.getOptions().setUseInsecureSSL(true);
+		c.getOptions().setUseInsecureSSL(false);
 		c.getOptions().setCssEnabled(false);
-		c.getOptions().setAppletEnabled(true);
-		c.getOptions().setJavaScriptEnabled(true);
+		c.getOptions().setAppletEnabled(false);
+		c.getOptions().setJavaScriptEnabled(false);
 		c.getOptions().setPrintContentOnFailingStatusCode(false);
 		c.getOptions().setThrowExceptionOnFailingStatusCode(false);
 		c.getOptions().setThrowExceptionOnScriptError(false);
-		// Get Page
+		// Get Online Page
 		try {
-			// TODO Changed
 			pg = c.getPage(ibDB);
+		// Switch to Offline
 		}catch (FailingHttpStatusCodeException | IOException e) {
-			lockdown("Connection to Website Failed. Check Internet Connection. Switching to Offline.", false);
+			Error.throwError("Connection to Website Failed. Check Internet Connection. Switching to Offline.", false);
 			offline();
 		}
-		isConnected = true;
 		// Loads the Links
-		c.waitForBackgroundJavaScript(500);
 		loadLinks();
 	}
 	
@@ -110,15 +75,16 @@ public class Loader {
 	 * Switch to Offline
 	 */
 	public void offline() {
-		isConnected = false;
+		// Try for Offline
 		try {
 			pg = c.getPage(ibDBOff);
+		// Nothing works
 		} catch (FailingHttpStatusCodeException | IOException e1) {
-			lockdown("Offline Database cannot be found.", true);
+			Error.throwError("Offline Database cannot be found.", true);
 		}
 	}
 	
-	//- Links -//
+	//- Links to the Subject Topics-//
 	private final ArrayList<HtmlAnchor> links = new ArrayList<>();
 	
 	/**
@@ -132,15 +98,17 @@ public class Loader {
 	}
 	
 	/**
-	 * Load all links from Main
-	 * @throws IOException 
+	 * Load all links
 	 */
 	private void loadLinks() {
+		// Clears the Link List
+		links.clear();
 		// The Link Location
 		HtmlDivision div = pg.getFirstByXPath("//div[@class='row services']");
 		// Error 403 Forbidden (DMCA Takedown)
+		// Auto switch to offline
 		if(div == null) {
-			lockdown("A DMCA Takedown order has been issued. The Databases are down. Switching to Offline.", false);
+			Error.throwError("A DMCA Takedown order has been issued. The Databases are down. Switching to Offline.", false);
 			offline();
 			div = pg.getFirstByXPath("//div[@class='row services']");
 		}
@@ -154,7 +122,6 @@ public class Loader {
 	}
 	
 	//- Current Database -//
-	
 	private final ArrayList<HtmlAnchor> subj = new ArrayList<>();
 	
 	/**
@@ -168,10 +135,11 @@ public class Loader {
 	}
 	
 	/**
-	 * Entering a Database
+	 * Entering a Database<br>
+	 * Use loadLinks() before this.
 	 * 
 	 * @param a
-	 * The database in the ArrayList
+	 * The desired subject database 
 	 */
 	public void parseDatabase(HtmlAnchor a) {
 		// Clears the List to host the new Database
@@ -180,13 +148,14 @@ public class Loader {
 		HtmlPage dbPage = null;
 		// Verify Anchor
 		if(!links.contains(a))
-			lockdown("Internal Error Detected", true);
+			Error.throwError("Internal Error Detected", true);
 		// Proceed
 		try {
 			dbPage = a.click();
 		} catch (IOException e) {
-			lockdown("Invalid Links. Please check to make sure you have the latest software.", true);
+			Error.throwError("Invalid Links. Please check to make sure you have the latest software.", true);
 		}
+		// Grabs all the topics
 		HtmlTableBody body = dbPage.getFirstByXPath("//table[@class='table']/tbody");
 		for(HtmlElement item : body.getHtmlElementDescendants()) {
 			// Ignores titles
@@ -199,7 +168,6 @@ public class Loader {
 	}
 	
 	//- Questions -//
-	
 	private final HashMap<String, HtmlAnchor> questions = new HashMap<>();
 	
 	/**
@@ -213,8 +181,11 @@ public class Loader {
 	}
 	
 	/**
+	 * Loads all the questions for the given topic<br>
+	 * Use parseDatabase() before this.
 	 * 
-	 * @param index
+	 * @param a
+	 * The desired questions for a given topic
 	 */
 	public void loadQuest(HtmlAnchor a) {
 		// Clear List
@@ -223,12 +194,12 @@ public class Loader {
 		HtmlPage quests = null;
 		// Verify Anchor
 		if(!subj.contains(a))
-			lockdown("Internal Error Detected", true);
+			Error.throwError("Internal Error Detected", true);
 		// Continue
 		try {
 			quests = a.click();
 		} catch (IOException e) {
-			lockdown("Invalid Links. Please check to make sure you have the latest software.", true);
+			Error.throwError("Invalid Links. Please check to make sure you have the latest software.", true);
 		}
 		// Detection
 		List<HtmlElement> rawQues = quests.getByXPath("//div[@class='module' and h3='Directly related questions']/ul/li");
@@ -411,7 +382,8 @@ public class Loader {
 	}
 	
 	/**
-	 * Organize Parts of the Question
+	 * Organize Parts of the Question<br>
+	 * Use loadQuest() before this.
 	 * 
 	 * @param ID
 	 * The Question Identifier
@@ -424,11 +396,11 @@ public class Loader {
 		try {
 			questPg = questions.get(ID).click();
 		} catch (IOException e) {
-			lockdown("Invalid Links. Please check to make sure you have the latest software.", true);
+			Error.throwError("Invalid Links. Please check to make sure you have the latest software.", true);
 		}
 		// Verify
 		if(questPg == null)
-			lockdown("Internal Error Detected", true);
+			Error.throwError("Internal Error Detected", true);
 		// Iterate through descendants to find data
 		boolean isQuest = false,
 				isAns = false;

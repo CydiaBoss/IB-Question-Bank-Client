@@ -18,12 +18,13 @@ import javax.swing.JLabel;
 import javax.swing.ImageIcon;
 import java.awt.Font;
 import javax.swing.JButton;
+import javax.swing.SwingConstants;
 
 /**
  * Error Framework
  * 
- * @author andre
- * @version 1.0.4.3
+ * @author Andrew Wang
+ * @version 1.0.4.5
  */
 public class Error extends JFrame {
 
@@ -47,7 +48,7 @@ public class Error extends JFrame {
 	}
 	
 	/**
-	 * Throws Error
+	 * Throws Error and pauses all execution
 	 * 
 	 * @param txt
 	 * Message
@@ -56,6 +57,7 @@ public class Error extends JFrame {
 	 */
 	public static void throwError(String txt, boolean crash) {
 		setCont(true);
+		// Branches another thread
 		Thread t = new Thread(() -> {
 			Main.lck.lock();
 			new Error(txt, crash)
@@ -69,6 +71,14 @@ public class Error extends JFrame {
 			Main.lck.unlock();
 		});
 		t.start();
+		// Shutdown
+		try {
+			Thread.sleep(15);
+			Main.lck.lock();
+		} catch (InterruptedException e) {
+		}finally{
+			Main.lck.unlock();
+		}
 	}
 	
 	/**
@@ -82,15 +92,21 @@ public class Error extends JFrame {
 		else
 			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		// Add a close action
+		// Unfortunate used a lot of lines just for one function
 		addWindowListener(new WindowListener() {
+			/* Unused */
 			@Override
 			public void windowActivated(WindowEvent arg0) {}
 
+			/**
+			 * Unlocks the main thread when the error dialog box is closed
+			 */
 			@Override
 			public void windowClosed(WindowEvent arg0) {
 				setCont(false);
 			}
 
+			/* Unused */
 			@Override
 			public void windowClosing(WindowEvent arg0) {}
 
@@ -122,7 +138,8 @@ public class Error extends JFrame {
 		contentPane.add(verticalStrut, BorderLayout.NORTH);
 		
 		JLabel msg = new JLabel("<html>" + txt + "</html>");
-		msg.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		msg.setVerticalAlignment(SwingConstants.TOP);
+		msg.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		if(crash)
 			msg.setIcon(new ImageIcon(Error.class.getResource("/com/sun/javafx/scene/control/skin/caspian/dialog-error.png")));
 		else

@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.ib.quest.Loader;
+import com.ib.quest.gui.questions.BasicQuestion;
 
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
@@ -25,16 +26,19 @@ import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingConstants;
+import javax.swing.ScrollPaneConstants;
 
 /**
  * Selector Window
  * 
- * @author andre
- * @version 1.0.4.3
+ * @author Andrew Wang
+ * @version 1.0.4.5
  */
 public class Selector {
 
+	// The mainframe
 	private JFrame main;
+	// The loader
 	private Loader ld;
 	
 	// JPanels
@@ -104,7 +108,7 @@ public class Selector {
 		// Create New Panel
 		topic = new JPanel();
 		topic.setLayout(new GridLayout(0, 1, 0, 20));
-		topic.setBounds(0, 0, 360, 160);
+		topic.setBounds(main.getX(), main.getY(), 360, 160);
 		
 		JPanel panel = new JPanel();
 		topic.add(panel);
@@ -138,7 +142,7 @@ public class Selector {
 		backBtn.addActionListener(e -> {
 			main.getContentPane().remove(topic);
 			main.getContentPane().add(subj, BorderLayout.CENTER);
-			main.setBounds(100, 100, 300, 40 + 60 * ld.getDBs().size());
+			main.setBounds(main.getX(), main.getY(), 300, 40 + 60 * ld.getDBs().size());
 			main.revalidate();
 		});
 		panel_2.add(backBtn);
@@ -158,7 +162,7 @@ public class Selector {
 		// Updates the Frame
 		main.getContentPane().remove(subj);
 		main.getContentPane().add(topic, BorderLayout.CENTER);
-		main.setBounds(100, 100, 400, 200);
+		main.setBounds(main.getX(), main.getY(), 400, 200);
 		main.revalidate();
 	}
 	
@@ -219,6 +223,7 @@ public class Selector {
 		panel.add(verticalBox);
 		
 		JScrollPane scrollPane = new JScrollPane(tab);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		quest.add(scrollPane);
 		
 		JRadioButton randomRdBtn = new JRadioButton("Random");
@@ -262,18 +267,27 @@ public class Selector {
 		backBtn.addActionListener(e -> {
 			main.getContentPane().remove(quest);
 			main.getContentPane().add(topic, BorderLayout.CENTER);
-			main.setBounds(100, 100, 400, 200);
+			main.setBounds(main.getX(), main.getY(), 400, 200);
 			main.revalidate();
 		});
 		panel_2.add(backBtn);
 		
-		JButton nextBtn = new JButton("Next");
-		panel_2.add(nextBtn);
+		JButton stBtn = new JButton("Start");
+		stBtn.addActionListener(e -> {
+			if(selRdBtn.isSelected()) {
+				main.getContentPane().remove(quest);
+				main.getContentPane().add(new BasicQuestion(main.getX(), main.getY(), ld, 
+						((String) tab.getValueAt(tab.getSelectedRow(), 0)).trim()), BorderLayout.CENTER);
+				main.setBounds(main.getX(), main.getY(), 400, 450);
+				main.revalidate();
+			}
+		});
+		panel_2.add(stBtn);
 		
 		// Updates the Frame
 		main.getContentPane().remove(topic);
 		main.getContentPane().add(quest, BorderLayout.CENTER);
-		main.setBounds(100, 100, 400, 300);
+		main.setBounds(main.getX(), main.getY(), 400, 300);
 		main.revalidate();
 	}
 }
