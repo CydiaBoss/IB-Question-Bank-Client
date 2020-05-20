@@ -62,6 +62,11 @@ public class Selector {
 		});
 	}
 	
+	private void reload() {
+		main.repaint();
+		main.revalidate();
+	}
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -72,6 +77,8 @@ public class Selector {
 		main.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		main.setResizable(false);
 		main.setSize(Constants.Size.SUB_W , Constants.Size.SUB_H + Constants.Size.INT_SIZE * ld.getDBs().size());
+		// Spawns the JFrame in the middle of the screen
+		main.setLocationRelativeTo(null);
 		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		main.getContentPane().setLayout(new BorderLayout(0, 0));
 		
@@ -105,7 +112,7 @@ public class Selector {
 	 * Regenerating the GUI for subject
 	 * 
 	 * @param anc
-	 * @wbp.parser.entryPoint
+	 * The subject to generate from
 	 */
 	private synchronized void topicSelection(HtmlAnchor anc) {
 		// Load the new 
@@ -148,7 +155,7 @@ public class Selector {
 			main.getContentPane().add(subj, BorderLayout.CENTER);
 			main.setSize(Constants.Size.SUB_W , 
 					Constants.Size.SUB_H + Constants.Size.INT_SIZE * ld.getDBs().size());
-			main.revalidate();
+			reload();
 		});
 		panel_2.add(backBtn);
 		
@@ -172,7 +179,7 @@ public class Selector {
 		instruLbl.setFont(new Font("Tahoma", Font.BOLD, 14));
 		topic.add(instruLbl, BorderLayout.NORTH);
 		main.setSize(Constants.Size.STAN_W, Constants.Size.STAN_H);
-		main.revalidate();
+		reload();
 	}
 	
 	/**
@@ -180,13 +187,14 @@ public class Selector {
 	 * 
 	 * @param index
 	 * Selected Topic
+	 * @wbp.parser.entryPoint
 	 */
 	private synchronized void quesSelection(int index) {
 		// Load New Question Bank
 		ld.loadQuest(ld.getTopics().get(index));
 		// Create Panel
 		quest = new JPanel();
-		quest.setLayout(new GridLayout(0, 1, 0, 20));
+		quest.setLayout(new GridLayout(0, 1, 0, 0));
 		
 		JPanel panel = new JPanel();
 		quest.add(panel);
@@ -227,6 +235,10 @@ public class Selector {
 		// Default Disabled
 		tab.setEnabled(false);
 		
+		JLabel instrLbl = new JLabel("Choose a random to get random questions or pick a question.");
+		instrLbl.setFont(new Font("Tahoma", Font.BOLD, 14));
+		panel.add(instrLbl);
+		
 		Box verticalBox = Box.createVerticalBox();
 		panel.add(verticalBox);
 		
@@ -263,7 +275,7 @@ public class Selector {
 		quest.add(panel_1);
 		panel_1.setLayout(new BorderLayout(0, 0));
 		
-		Component verticalStrut_1 = Box.createVerticalStrut(40);
+		Component verticalStrut_1 = Box.createVerticalStrut(75);
 		panel_1.add(verticalStrut_1, BorderLayout.NORTH);
 		
 		JPanel panel_2 = new JPanel();
@@ -275,7 +287,7 @@ public class Selector {
 		backBtn.addActionListener(e -> {
 			main.getContentPane().remove(quest);
 			main.getContentPane().add(topic, BorderLayout.CENTER);
-			main.revalidate();
+			reload();
 		});
 		panel_2.add(backBtn);
 		
@@ -289,7 +301,7 @@ public class Selector {
 				main.getContentPane().remove(quest);
 				main.getContentPane().add(new BasicQuestion(main.getX(), main.getY(), ld, 
 						((String) tab.getValueAt(tab.getSelectedRow(), 0)).trim(), main, quest), BorderLayout.CENTER);
-				main.revalidate();
+				reload();
 			}
 		});
 		panel_2.add(stBtn);
@@ -297,6 +309,8 @@ public class Selector {
 		// Updates the Frame
 		main.getContentPane().remove(topic);
 		main.getContentPane().add(quest, BorderLayout.CENTER);
-		main.revalidate();
+		reload();
 	}
+	
+	
 }

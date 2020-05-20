@@ -7,8 +7,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import java.awt.Toolkit;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.Component;
 
 import javax.swing.Box;
@@ -31,8 +29,6 @@ public class Error extends JFrame {
 	
 	private JPanel contentPane;
 	
-	// TODO Figure out wtf is causing blank error prompts
-	
 	/**
 	 * Throws Error and pauses all execution
 	 * 
@@ -42,9 +38,10 @@ public class Error extends JFrame {
 	 * Shutdown?
 	 */
 	public static void throwError(String txt, boolean crash) {
+		Error e = new Error(txt, crash);
 		// Branches another thread
 		SwingUtilities.invokeLater(() -> {
-			new Error(txt, crash);
+			e.setVisible(true);
 		});
 	}
 	
@@ -52,6 +49,7 @@ public class Error extends JFrame {
 	 * Create the frame.
 	 */
 	private Error(String txt, boolean crash) {
+		setAlwaysOnTop(true);
 		setTitle("Error");
 		setResizable(false);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Error.class.getResource("/img/IBRR.png")));
@@ -60,8 +58,9 @@ public class Error extends JFrame {
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		else
 			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		
-		setBounds(100, 100, 350, 160);
+		// Spawns the JFrame in the middle of the screen
+		setLocationRelativeTo(null);
+		setSize(350, 150);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
@@ -106,7 +105,6 @@ public class Error extends JFrame {
 		
 		Component verticalStrut_2 = Box.createVerticalStrut(15);
 		panel.add(verticalStrut_2, BorderLayout.SOUTH);
-
-		setVisible(true);
+		
 	}
 }

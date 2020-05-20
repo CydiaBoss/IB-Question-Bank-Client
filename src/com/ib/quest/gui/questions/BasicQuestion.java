@@ -35,6 +35,9 @@ public class BasicQuestion extends JPanel {
 	ArrayList<Question> questions, 
 						answers;
 	
+	/* Question Counter */
+	private int curSlide = 1;
+	
 	// TODO Scroll Pane sucks, switch tmrw
 	
 	/**
@@ -77,6 +80,7 @@ public class BasicQuestion extends JPanel {
 		quitBtn.addActionListener(e -> {
 			m.getContentPane().remove(this);
 			m.getContentPane().add(pre, BorderLayout.CENTER);
+			m.repaint();
 			m.revalidate();
 		});
 		panel_1.add(quitBtn);
@@ -85,24 +89,6 @@ public class BasicQuestion extends JPanel {
 		add(panel_2, BorderLayout.CENTER);
 		CardLayout c = new CardLayout(0, 0);
 		panel_2.setLayout(c);
-		
-		Box horizontalBox = Box.createHorizontalBox();
-		panel_1.add(horizontalBox);
-		
-		JButton bacBtn = new JButton("Back");
-		bacBtn.addActionListener(e -> 
-			c.previous(panel_2)
-		);
-		horizontalBox.add(bacBtn);
-		
-		Component horizontalGlue = Box.createHorizontalGlue();
-		horizontalBox.add(horizontalGlue);
-		
-		JButton nextBtn = new JButton("Next");
-		nextBtn.addActionListener(e -> 
-			c.next(panel_2)
-		);
-		horizontalBox.add(nextBtn);
 		
 		/* Generate all Question */
 		
@@ -119,7 +105,8 @@ public class BasicQuestion extends JPanel {
 			Component verticalStrut = Box.createVerticalStrut(15);
 			panel_4.add(verticalStrut, BorderLayout.NORTH);
 			
-			JLabel labelLbl = new JLabel(q.getLabel());
+			JLabel labelLbl = new JLabel(q.getLabel() + ") ");
+			labelLbl.setAlignmentY(TOP_ALIGNMENT);
 			labelLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_4.add(labelLbl, BorderLayout.WEST);
 			
@@ -144,6 +131,51 @@ public class BasicQuestion extends JPanel {
 			panel_3.add(verticalStrut_2, BorderLayout.SOUTH);
 			
 		}
+		
+		Box horizontalBox = Box.createHorizontalBox();
+
+		JButton bacBtn = new JButton("Back");
+		
+		JButton nextBtn = new JButton("Next");
+		
+		if(questions.size() != 1) {
+			
+			panel_1.add(horizontalBox);
+		
+			bacBtn.setEnabled(false);
+			bacBtn.addActionListener(e -> {
+				c.previous(panel_2);
+				curSlide--;
+				if(nextBtn.getText().equals("Submit"))
+					nextBtn.setText("Next");
+				if(curSlide == 1)
+					bacBtn.setEnabled(false);
+			});
+			horizontalBox.add(bacBtn);
+			
+			Component horizontalGlue = Box.createHorizontalGlue();
+			horizontalBox.add(horizontalGlue);
+			
+		}
+		
+		if(questions.size() == 1)
+			nextBtn.setText("Submit");
+		nextBtn.addActionListener(e -> {
+			if(nextBtn.getText().equals("Next")) {
+				c.next(panel_2);
+				curSlide++;
+				bacBtn.setEnabled(true);
+				if(curSlide == questions.size())
+					nextBtn.setText("Submit");
+			}else{
+				//Check Answers
+			}
+		});
+		
+		if(questions.size() != 1)
+			horizontalBox.add(nextBtn);
+		else
+			panel_1.add(nextBtn);
 	}
 	
 	/**

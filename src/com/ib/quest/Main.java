@@ -15,6 +15,11 @@ import com.ib.quest.gui.Error;
 public class Main {
 	
 	/**
+	 * My own main thread
+	 */
+	public static Thread t;
+	
+	/**
 	 * The Loader
 	 */
 	private static Loader ld;
@@ -31,9 +36,13 @@ public class Main {
 			Error.throwError("Internal Error Detected", true);
 			
 		}
-		// Setup
-		ld = new Loader();	
-		new Selector(ld);
+		// The main thread
+		t = new Thread(() -> { 
+			// Setup
+			ld = new Loader();	
+			new Selector(ld);
+		});
+		t.start();
 	}
 
 }
