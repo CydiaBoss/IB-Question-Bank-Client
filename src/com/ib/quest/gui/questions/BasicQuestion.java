@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import java.util.ArrayList;
-
+import java.util.HashMap;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
 
@@ -19,6 +19,7 @@ import java.awt.Font;
 import javax.swing.Box;
 import java.awt.Component;
 import java.awt.CardLayout;
+import javax.swing.SwingConstants;
 
 /**
  * This is a JPanel for a basic question
@@ -38,17 +39,26 @@ public class BasicQuestion extends JPanel {
 	/* Question Counter */
 	private int curSlide = 1;
 	
-	// TODO Scroll Pane sucks, switch tmrw
+	/* Question Slides */
+	private HashMap<String, JPanel> questSlide = new HashMap<>();
+	private HashMap<String, JTextArea> questSlideAns = new HashMap<>();
+	
+	/* Submitted */ 
+	private boolean submit = false;
 	
 	/**
 	 * Creates the Panel
 	 * 
-	 * @param x
-	 * X Location of the mainframe
-	 * @param y
-	 * Y Location of the mainframe
+	 * @param ld
+	 * The Loader
+	 * @param ID
+	 * The question's ID
+	 * @param m
+	 * The mainframe
+	 * @param pre
+	 * The previous {@link JPanel}
 	 */
-	public BasicQuestion(int x, int y, Loader ld, String ID, JFrame m, JPanel pre) {
+	public BasicQuestion(Loader ld, String ID, JFrame m, JPanel pre) {
 		
 		// Get Question
 		txt = "";
@@ -93,7 +103,7 @@ public class BasicQuestion extends JPanel {
 		/* Generate all Question */
 		
 		for(Question q : questions) {
-		
+			
 			JPanel panel_3 = new JPanel();
 			panel_2.add(q.getLabel(), panel_3);
 			panel_3.setLayout(new BorderLayout(0, 0));
@@ -106,11 +116,13 @@ public class BasicQuestion extends JPanel {
 			panel_4.add(verticalStrut, BorderLayout.NORTH);
 			
 			JLabel labelLbl = new JLabel(q.getLabel() + ") ");
+			labelLbl.setVerticalAlignment(SwingConstants.TOP);
 			labelLbl.setAlignmentY(TOP_ALIGNMENT);
 			labelLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_4.add(labelLbl, BorderLayout.WEST);
 			
 			JLabel quesLbl = new JLabel("<html>" + q.getText() + "</html>");
+			quesLbl.setVerticalAlignment(SwingConstants.TOP);
 			quesLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_4.add(quesLbl, BorderLayout.CENTER);
 			
@@ -124,11 +136,17 @@ public class BasicQuestion extends JPanel {
 			
 			JTextArea textPane = new JTextArea();
 			textPane.setFont(new Font("Tahoma", Font.PLAIN, 12));
-			textPane.setWrapStyleWord(true);
+			textPane.setLineWrap(true);
 			panel_3.add(textPane, BorderLayout.CENTER);
+			
+			// Puts Text Box into a HashMap
+			questSlideAns.put(q.getLabel(), textPane);
 			
 			Component verticalStrut_2 = Box.createVerticalStrut(20);
 			panel_3.add(verticalStrut_2, BorderLayout.SOUTH);
+			
+			// Puts all JPanel into a HashMap
+			questSlide.put(q.getLabel(), panel_3);
 			
 		}
 		
@@ -150,6 +168,7 @@ public class BasicQuestion extends JPanel {
 					nextBtn.setText("Next");
 				if(curSlide == 1)
 					bacBtn.setEnabled(false);
+				nextBtn.setEnabled(true);
 			});
 			horizontalBox.add(bacBtn);
 			
@@ -165,10 +184,17 @@ public class BasicQuestion extends JPanel {
 				c.next(panel_2);
 				curSlide++;
 				bacBtn.setEnabled(true);
-				if(curSlide == questions.size())
+				if(curSlide == questions.size()) {
 					nextBtn.setText("Submit");
+					if(submit)
+						nextBtn.setEnabled(false);
+				}
 			}else{
-				//Check Answers
+				submit = true;
+				checkAns();
+				m.repaint();
+				m.revalidate();
+				nextBtn.setEnabled(false);
 			}
 		});
 		
@@ -176,6 +202,21 @@ public class BasicQuestion extends JPanel {
 			horizontalBox.add(nextBtn);
 		else
 			panel_1.add(nextBtn);
+	}
+	
+	/**
+	 * Adds the answers onto the text
+	 */
+	private void checkAns() {
+		for(Question a : answers) {
+			
+			JLabel ansLbl = new JLabel("<html>" + a.getText() + "</html>");
+			ansLbl.setVerticalAlignment(SwingConstants.TOP);
+			ansLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			questSlide.get(a.getLabel()).add(ansLbl, BorderLayout.EAST);
+			questSlideAns.get(a.getLabel()).setEditable(false);
+			
+		}
 	}
 	
 	/**

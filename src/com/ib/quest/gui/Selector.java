@@ -113,6 +113,7 @@ public class Selector {
 	 * 
 	 * @param anc
 	 * The subject to generate from
+	 * @wbp.parser.entryPoint
 	 */
 	private synchronized void topicSelection(HtmlAnchor anc) {
 		// Load the new 
@@ -141,12 +142,12 @@ public class Selector {
 		topic.add(panel_1, BorderLayout.SOUTH);
 		panel_1.setLayout(new BorderLayout(0, 0));
 		
-		Component verticalStrut_1 = Box.createVerticalStrut(30);
+		Component verticalStrut_1 = Box.createVerticalStrut(20);
 		panel_1.add(verticalStrut_1, BorderLayout.NORTH);
 		
 		JPanel panel_2 = new JPanel();
 		panel_1.add(panel_2, BorderLayout.CENTER);
-		panel_2.setLayout(new GridLayout(1, 0, 160, 0));
+		panel_2.setLayout(new GridLayout(1, 0, 120, 0));
 		
 		// A back button
 		JButton backBtn = new JButton("Back");
@@ -169,6 +170,9 @@ public class Selector {
 			// Gen
 			quesSelection(list.getSelectedIndex());
 		});
+		
+		Component verticalStrut = Box.createVerticalStrut(40);
+		panel_2.add(verticalStrut);
 		panel_2.add(nextBtn);
 		
 		// Updates the Frame
@@ -187,7 +191,6 @@ public class Selector {
 	 * 
 	 * @param index
 	 * Selected Topic
-	 * @wbp.parser.entryPoint
 	 */
 	private synchronized void quesSelection(int index) {
 		// Load New Question Bank
@@ -275,7 +278,7 @@ public class Selector {
 		quest.add(panel_1);
 		panel_1.setLayout(new BorderLayout(0, 0));
 		
-		Component verticalStrut_1 = Box.createVerticalStrut(75);
+		Component verticalStrut_1 = Box.createVerticalStrut(70);
 		panel_1.add(verticalStrut_1, BorderLayout.NORTH);
 		
 		JPanel panel_2 = new JPanel();
@@ -299,7 +302,7 @@ public class Selector {
 					return;
 				}
 				main.getContentPane().remove(quest);
-				main.getContentPane().add(new BasicQuestion(main.getX(), main.getY(), ld, 
+				main.getContentPane().add(new BasicQuestion(ld, 
 						((String) tab.getValueAt(tab.getSelectedRow(), 0)).trim(), main, quest), BorderLayout.CENTER);
 				reload();
 			}
