@@ -20,6 +20,7 @@ import javax.swing.Box;
 import java.awt.Component;
 import java.awt.CardLayout;
 import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
 
 /**
  * This is a JPanel for a basic question
@@ -40,6 +41,8 @@ public class BasicQuestion extends JPanel {
 	private int curSlide = 1;
 	
 	/* Question Slides */
+	private CardLayout c = new CardLayout(0, 0);
+	private JPanel displayPanel = new JPanel();
 	private HashMap<String, JPanel> questSlide = new HashMap<>();
 	private HashMap<String, JTextArea> questSlideAns = new HashMap<>();
 	
@@ -94,18 +97,16 @@ public class BasicQuestion extends JPanel {
 			m.revalidate();
 		});
 		panel_1.add(quitBtn);
-		
-		JPanel panel_2 = new JPanel();
-		add(panel_2, BorderLayout.CENTER);
-		CardLayout c = new CardLayout(0, 0);
-		panel_2.setLayout(c);
+
+		add(displayPanel, BorderLayout.CENTER);
+		displayPanel.setLayout(c);
 		
 		/* Generate all Question */
 		
 		for(Question q : questions) {
 			
 			JPanel panel_3 = new JPanel();
-			panel_2.add(q.getLabel(), panel_3);
+			displayPanel.add(q.getLabel(), panel_3);
 			panel_3.setLayout(new BorderLayout(0, 0));
 			
 			JPanel panel_4 = new JPanel();
@@ -137,6 +138,7 @@ public class BasicQuestion extends JPanel {
 			JTextArea textPane = new JTextArea();
 			textPane.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			textPane.setLineWrap(true);
+			textPane.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 			panel_3.add(textPane, BorderLayout.CENTER);
 			
 			// Puts Text Box into a HashMap
@@ -162,7 +164,7 @@ public class BasicQuestion extends JPanel {
 		
 			bacBtn.setEnabled(false);
 			bacBtn.addActionListener(e -> {
-				c.previous(panel_2);
+				c.previous(displayPanel);
 				curSlide--;
 				if(nextBtn.getText().equals("Submit"))
 					nextBtn.setText("Next");
@@ -181,7 +183,7 @@ public class BasicQuestion extends JPanel {
 			nextBtn.setText("Submit");
 		nextBtn.addActionListener(e -> {
 			if(nextBtn.getText().equals("Next")) {
-				c.next(panel_2);
+				c.next(displayPanel);
 				curSlide++;
 				bacBtn.setEnabled(true);
 				if(curSlide == questions.size()) {
@@ -206,16 +208,51 @@ public class BasicQuestion extends JPanel {
 	
 	/**
 	 * Adds the answers onto the text
+	 * @wbp.parser.entryPoint
 	 */
 	private void checkAns() {
+		// Adds to all Panels
 		for(Question a : answers) {
+			// Removes text area
+			questSlide.get(a.getLabel()).remove(questSlideAns.get(a.getLabel()));
+			// Replace with a JPanel
+			JPanel ansSlide = new JPanel();
+			ansSlide.setLayout(new GridLayout(0, 1, 0, 10));
+			// User Panel
+			JPanel panel = new JPanel();
+			ansSlide.add(panel);
+			panel.setLayout(new BorderLayout(0, 10));
 			
-			JLabel ansLbl = new JLabel("<html>" + a.getText() + "</html>");
-			ansLbl.setVerticalAlignment(SwingConstants.TOP);
+			JLabel urRepLbl = new JLabel("Your Response:");
+			urRepLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			panel.add(urRepLbl, BorderLayout.NORTH);
+			
+			JLabel urAnsLbl = new JLabel(questSlideAns.get(a.getLabel()).getText());
+			urAnsLbl.setVerticalAlignment(SwingConstants.TOP);
+			urAnsLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			panel.add(urAnsLbl, BorderLayout.CENTER);
+			// Answer Panel
+			JPanel panel_1 = new JPanel();
+			ansSlide.add(panel_1);
+			panel_1.setLayout(new BorderLayout(0, 10));
+			
+			JLabel ansLbl = new JLabel("The Answer:");
 			ansLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
-			questSlide.get(a.getLabel()).add(ansLbl, BorderLayout.EAST);
-			questSlideAns.get(a.getLabel()).setEditable(false);
+			panel_1.add(ansLbl, BorderLayout.NORTH);
 			
+			JLabel realAnsLbl = new JLabel("<html>" + a.getText() + "</html>");
+			realAnsLbl.setVerticalAlignment(SwingConstants.TOP);
+			realAnsLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			panel_1.add(realAnsLbl, BorderLayout.CENTER);
+			
+			// Mark some sort of mark calculating system
+			JLabel markLbl = new JLabel("[" + "Predicted Marks" + "]");
+			markLbl.setHorizontalAlignment(SwingConstants.TRAILING);
+			markLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			panel_1.add(markLbl, BorderLayout.SOUTH);
+			
+			// Add Back
+			questSlide.get(a.getLabel()).add(ansSlide, BorderLayout.CENTER);
 		}
 	}
 	

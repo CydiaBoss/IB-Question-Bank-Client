@@ -2,6 +2,7 @@ package com.ib.quest;
 
 import com.ib.quest.gui.Error;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -57,6 +58,17 @@ public class Constants {
 		/**
 		 * Offline
 		 */
-		public static final URL IBDBOFF = Constants.class.getResource("/test/main.html");
+		public static final URL IBDBOFF = IBOFFEXP();
+		
+		// Used to handle the exception
+		@Deprecated
+		private static final URL IBOFFEXP() {
+			try {
+				return new File("test/main.html").toURI().toURL();
+			} catch (MalformedURLException e) {
+				Error.throwError("Internal Error Detected", true);
+				return null;
+			}
+		}
 	}
 }

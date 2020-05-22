@@ -113,7 +113,6 @@ public class Selector {
 	 * 
 	 * @param anc
 	 * The subject to generate from
-	 * @wbp.parser.entryPoint
 	 */
 	private synchronized void topicSelection(HtmlAnchor anc) {
 		// Load the new 

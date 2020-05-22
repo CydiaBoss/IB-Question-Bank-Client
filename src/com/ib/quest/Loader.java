@@ -1,5 +1,6 @@
 package com.ib.quest;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -68,6 +69,9 @@ public class Loader {
 	 * Switch to Offline
 	 */
 	public void offline() {
+		File f = new File("test");
+		f.mkdir();
+		
 		// Try for Offline
 		try {
 			pg = c.getPage(Constants.Database.IBDBOFF);
