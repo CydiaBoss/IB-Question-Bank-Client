@@ -109,6 +109,11 @@ public class Loader {
 			offline();
 			div = pg.getFirstByXPath("//div[@class='row services']");
 		}
+		// Offline Corruption
+		if(div == null) {
+			Error.throwError("Offline is courrpted. Exiting", true);
+		}
+		System.out.println(div.asXml());
 		// Copy the Links down
 		for(HtmlElement a : div.getHtmlElementDescendants()) {
 			if(!(a instanceof HtmlAnchor))
