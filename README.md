@@ -18,6 +18,6 @@ An application to host the IB past paper questions from the IB document database
 </ul>
 
 # Download
-<a href='https://github.com/CydiaBoss/IB-Question-Bank-Client/blob/master/program/IBQB-Proto.jar'>Windows</a><br>
-<a href='https://github.com/CydiaBoss/IB-Question-Bank-Client/blob/master/program/IBQB-Proto.jar'>Other OS (Mac, Linux, etc)</a>
+<a href='https://github.com/CydiaBoss/IB-Question-Bank-Client/raw/master/program/IBQB-Proto.jar'>Windows</a><br>
+<a href='https://github.com/CydiaBoss/IB-Question-Bank-Client/raw/master/program/IBQB-Proto.jar'>Other OS (Mac, Linux, etc)</a>
 <ul><li>The other os file requires the installation of <a href='https://www.java.com/en/download/'>Java 8</a>.</li></ul>
