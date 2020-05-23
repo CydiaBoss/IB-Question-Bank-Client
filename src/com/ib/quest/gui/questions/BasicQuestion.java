@@ -36,6 +36,7 @@ public class BasicQuestion extends JPanel {
 	private String txt;
 	ArrayList<Question> questions, 
 						answers;
+	private String ID;
 	
 	/* Question Counter */
 	private int curSlide = 1;
@@ -69,6 +70,7 @@ public class BasicQuestion extends JPanel {
 		answers = new ArrayList<Question>();
 		ld.loadQParts(ID);
 		parseQParts(ld.getQParts());
+		this.ID = ID;
 		
 		setLayout(new BorderLayout(0, 0));
 		
@@ -88,15 +90,19 @@ public class BasicQuestion extends JPanel {
 		add(panel_1, BorderLayout.SOUTH);
 		panel_1.setLayout(new GridLayout(1, 0, 80, 0));
 		
-		// A back button
-		JButton quitBtn = new JButton("Quit");
-		quitBtn.addActionListener(e -> {
-			m.getContentPane().remove(this);
-			m.getContentPane().add(pre, BorderLayout.CENTER);
-			m.repaint();
-			m.revalidate();
-		});
-		panel_1.add(quitBtn);
+		if(m != null && pre != null) {
+		
+			// A back button
+			JButton quitBtn = new JButton("Quit");
+			quitBtn.addActionListener(e -> {
+				m.getContentPane().remove(this);
+				m.getContentPane().add(pre, BorderLayout.CENTER);
+				m.repaint();
+				m.revalidate();
+			});
+			panel_1.add(quitBtn);
+		
+		}
 
 		add(displayPanel, BorderLayout.CENTER);
 		displayPanel.setLayout(c);
@@ -187,30 +193,51 @@ public class BasicQuestion extends JPanel {
 				curSlide++;
 				bacBtn.setEnabled(true);
 				if(curSlide == questions.size()) {
-					nextBtn.setText("Submit");
-					if(submit)
+					if(m == null && pre == null)
 						nextBtn.setEnabled(false);
+					else {
+						nextBtn.setText("Submit");
+						if(submit)
+							nextBtn.setEnabled(false);
+					}
 				}
 			}else{
 				submit = true;
 				checkAns();
+				c.first(displayPanel);
+				curSlide = 1;
+				bacBtn.setEnabled(false);
 				m.repaint();
 				m.revalidate();
-				nextBtn.setEnabled(false);
 			}
 		});
 		
+		// If More than 1 part of question, horizontal box will exist so add to that
 		if(questions.size() != 1)
 			horizontalBox.add(nextBtn);
+		// If part of random prog and only 1 quest, do nothing
+		else if(m == null && pre == null)
+			nextBtn.setEnabled(false);
+		// Else, add to panel
 		else
 			panel_1.add(nextBtn);
+	}
+	
+	/**
+	 * The Question's ID
+	 * 
+	 * @return
+	 * The ID
+	 */
+	public String getID() {
+		return ID;
 	}
 	
 	/**
 	 * Adds the answers onto the text
 	 * @wbp.parser.entryPoint
 	 */
-	private void checkAns() {
+	public void checkAns() {
 		// Adds to all Panels
 		for(Question a : answers) {
 			// Removes text area

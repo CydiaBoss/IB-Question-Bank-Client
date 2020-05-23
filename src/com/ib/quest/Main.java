@@ -36,13 +36,9 @@ public class Main {
 			Error.throwError("Internal Error Detected", true);
 			
 		}
-		// The main thread
-		t = new Thread(() -> { 
-			// Setup
-			ld = new Loader();	
-			new Selector(ld);
-		});
-		t.start();
+		// Setup
+		ld = new Loader();	
+		new Selector(ld);
 	}
 
 }

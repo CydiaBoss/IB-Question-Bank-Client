@@ -6,6 +6,8 @@ import javax.swing.JFrame;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.swing.JButton;
 import java.awt.BorderLayout;
@@ -32,6 +34,10 @@ import javax.swing.SwingConstants;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JLabel;
 import java.awt.Font;
+import javax.swing.JSpinner;
+import javax.swing.JSpinner.DefaultEditor;
+import javax.swing.SpinnerListModel;
+import java.awt.CardLayout;
 
 /**
  * Selector Window
@@ -47,7 +53,7 @@ public class Selector {
 	private Loader ld;
 	
 	// JPanels
-	private JPanel subj, topic, quest;
+	private JPanel subj, topic, quest, ran;
 
 	/**
 	 * Create the application.
@@ -225,6 +231,7 @@ public class Selector {
              	return false;
           	}
 		};
+		// Customize Table
 		tab.setShowVerticalLines(false);
 		tab.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tab.setCellSelectionEnabled(false);
@@ -247,6 +254,11 @@ public class Selector {
 		JScrollPane scrollPane = new JScrollPane(tab);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		quest.add(scrollPane);
+
+		JSpinner spinner = new JSpinner();
+		spinner.setModel(new SpinnerListModel(new Integer[] {1, 3, 5, 10, 20, 25, 30}));
+		// No Typing in JSPinner
+		((DefaultEditor) spinner.getEditor()).getTextField().setEditable(false);
 		
 		JRadioButton randomRdBtn = new JRadioButton("Random");
 		randomRdBtn.setSelected(true);
@@ -255,9 +267,22 @@ public class Selector {
 			if(randomRdBtn.isSelected()) {
 				tab.setEnabled(false);
 				tab.setRowSelectionAllowed(false);
+				spinner.setEnabled(true);
 			}
 		});
-		verticalBox.add(randomRdBtn);
+		
+		Box horizontalBox = Box.createHorizontalBox();
+		verticalBox.add(horizontalBox);
+		
+		horizontalBox.add(randomRdBtn);
+		
+		Component horizontalGlue = Box.createHorizontalGlue();
+		horizontalBox.add(horizontalGlue);
+		
+		JLabel questAmtLbl = new JLabel("Amount of Questions: ");
+		horizontalBox.add(questAmtLbl);
+		
+		horizontalBox.add(spinner);
 		
 		JRadioButton selRdBtn = new JRadioButton("Selection");
 		selRdBtn.setHorizontalAlignment(SwingConstants.CENTER);
@@ -265,13 +290,22 @@ public class Selector {
 			if(selRdBtn.isSelected()) {
 				tab.setEnabled(true);
 				tab.setRowSelectionAllowed(true);
+				spinner.setEnabled(false);
 			}
 		});
-		verticalBox.add(selRdBtn);
 		
 		ButtonGroup sel = new ButtonGroup();
 		sel.add(randomRdBtn);
+		
 		sel.add(selRdBtn);
+		
+		Box horizontalBox_1 = Box.createHorizontalBox();
+		verticalBox.add(horizontalBox_1);
+		
+		horizontalBox_1.add(selRdBtn);
+		
+		Component horizontalGlue_1 = Box.createHorizontalGlue();
+		horizontalBox_1.add(horizontalGlue_1);
 		
 		JPanel panel_1 = new JPanel();
 		quest.add(panel_1);
@@ -304,6 +338,9 @@ public class Selector {
 				main.getContentPane().add(new BasicQuestion(ld, 
 						((String) tab.getValueAt(tab.getSelectedRow(), 0)).trim(), main, quest), BorderLayout.CENTER);
 				reload();
+			}else{
+				ranQuestSlide((int) spinner.getValue());
+				reload();
 			}
 		});
 		panel_2.add(stBtn);
@@ -314,5 +351,146 @@ public class Selector {
 		reload();
 	}
 	
+	/* Variables for the random */
 	
+	// Tracks Slide count
+	private int curSlide = 1;
+	// Tracks whether submitted or not
+	private boolean submit = false;
+	
+	/**
+	 * Creates the random page
+	 * @wbp.parser.entryPoint
+	 */
+	private void ranQuestSlide(int amt) {
+		
+		// Reset
+		curSlide = 1;
+		submit = false;
+		// Pick Question
+		BasicQuestion[] selQ = new BasicQuestion[amt];
+		// A Faster Style of Random for a smaller list
+		ArrayList<String> ranID = new ArrayList<>();
+		// Set to List
+		for(String s : ld.getQues().keySet()) 
+			ranID.add(s);
+		// Random Questions
+		int curQ = 0;
+		mainLoop:
+		while(curQ < amt){
+			// Shuffle array with quest ID
+			Collections.shuffle(ranID);
+			// Add enough
+			for(String qID : ranID) {
+				selQ[curQ] = new BasicQuestion(ld, qID, null, null);
+				curQ++;
+				// Escape Once Reached
+				if(curQ == amt)
+					break mainLoop;
+			}
+		}
+			
+		main.getContentPane().remove(quest);
+		
+		ran = new JPanel();
+		ran.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel_2 = new JPanel();
+		ran.add(panel_2, BorderLayout.NORTH);
+		panel_2.setLayout(new GridLayout(0, 1, 0, 10));
+		
+		JLabel titleLbl = new JLabel(amt + " Random Questions");
+		titleLbl.setFont(new Font("Tahoma", Font.BOLD, 14));
+		panel_2.add(titleLbl);
+		
+		JLabel curQLbl = new JLabel("Question " + curSlide + " of " + amt);
+		curQLbl.setFont(new Font("Tahoma", Font.PLAIN, 10));
+		panel_2.add(curQLbl);
+		
+		JPanel panel = new JPanel();
+		ran.add(panel, BorderLayout.CENTER);
+		CardLayout c = new CardLayout(0, 0);
+		panel.setLayout(c);
+		for(BasicQuestion bQ : selQ)
+			panel.add(bQ.getID(), bQ);
+		
+		JPanel panel_1 = new JPanel();
+		ran.add(panel_1, BorderLayout.SOUTH);
+		panel_1.setLayout(new GridLayout(1, 0, 60, 0));
+		
+		JButton quitBtn = new JButton("Quit");
+		quitBtn.addActionListener(e -> {
+			main.getContentPane().remove(ran);
+			main.getContentPane().add(quest, BorderLayout.CENTER);
+			reload();
+		});
+		panel_1.add(quitBtn);
+		
+		Box horizontalBox = Box.createHorizontalBox();
+
+		JButton bacBtn = new JButton("Back");
+		
+		JButton nextBtn = new JButton("Next");
+		
+		if(amt != 1) {
+			
+			panel_1.add(horizontalBox);
+		
+			bacBtn.setEnabled(false);
+			bacBtn.addActionListener(e -> {
+				c.previous(panel);
+				curSlide--;
+				curQLbl.setText("Question " + curSlide + " of " + amt);
+				if(nextBtn.getText().equals("Submit"))
+					nextBtn.setText("Next");
+				if(curSlide == 1)
+					bacBtn.setEnabled(false);
+				nextBtn.setEnabled(true);
+			});
+			horizontalBox.add(bacBtn);
+			
+			Component horizontalGlue = Box.createHorizontalGlue();
+			horizontalBox.add(horizontalGlue);
+			
+		}else
+			nextBtn.setText("Submit");
+		nextBtn.addActionListener(e -> {
+			if(nextBtn.getText().equals("Next")) {
+				c.next(panel);
+				curSlide++;
+				curQLbl.setText("Question " + curSlide + " of " + amt);
+				bacBtn.setEnabled(true);
+				if(curSlide == amt) {
+					nextBtn.setText("Submit");
+					if(submit)
+						nextBtn.setEnabled(false);
+				}
+			// Reveal Answer and Move back to slide 1
+			}else{
+				submit = true;
+				for(BasicQuestion bQ : selQ)
+					bQ.checkAns();
+				c.first(panel);
+				curSlide = 1;
+				// Prevent Btn from being named next even tho there is only 1 question
+				if(amt != 1)
+					nextBtn.setText("Next");
+				else 
+					nextBtn.setEnabled(false);
+				curQLbl.setText("Question " + curSlide + " of " + amt);
+				bacBtn.setEnabled(false);
+				reload();
+			}
+		});
+		
+		// If More than 1 part of question, horizontal box will exist so add to that
+		if(amt != 1)
+			horizontalBox.add(nextBtn);
+		// Else, add to panel
+		else
+			panel_1.add(nextBtn);
+		
+		// Adds to the Mainframe
+		main.getContentPane().add(ran, BorderLayout.CENTER);
+	}
 }
