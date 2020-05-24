@@ -83,20 +83,6 @@ public class Selector {
 	}
 	
 	/**
-	 * Restarts Everything
-	 */
-	public void restart() {
-		// Hide
-		main.setVisible(false);
-		// Restart
-		initialize();
-		// Reload
-		reload();
-		// Show
-		main.setEnabled(true);
-	}
-	
-	/**
 	 * Initialize the contents of the frame.
 	 * @wbp.parser.entryPoint
 	 */
@@ -148,9 +134,8 @@ public class Selector {
 		
 		JButton setBtn = new JButton("");
 		setBtn.addActionListener(e -> {
-			Main.s.init(main, subj);
 			main.remove(subj);
-			main.add(Main.s, BorderLayout.CENTER);
+			main.add(Main.s.init(main, subj), BorderLayout.CENTER);
 			reload();
 		});
 		setBtn.setIcon(new ImageIcon(Selector.class.getResource("/img/COG.png")));

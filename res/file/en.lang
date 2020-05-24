@@ -5,6 +5,9 @@ gen.pre=Previous
 gen.start=Start
 gen.submit=Submit
 gen.quit=Cancel
+gen.apply=Apply
+
+set.lang=Language
 
 subj.intro=IB Document Question Bank Client
 

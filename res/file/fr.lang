@@ -4,7 +4,10 @@ gen.next=Prochain
 gen.pre=Précédent
 gen.start=Commence
 gen.submit=Soumets
-gen.quit=Annulé
+gen.quit=Annuler
+gen.apply=Appliquer
+
+set.lang=Langue
 
 subj.intro=Client de base de question d'IB Document
 

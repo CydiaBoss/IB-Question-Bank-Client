@@ -8,6 +8,7 @@ An application to host the IB past paper questions from the IB document database
 <ul>
   <li>Answer Concealment</li>
   <li>Randomized Questions</li>
+  <li>Localization: French</li>
 </ul>
 
 # Coming Soon
@@ -15,7 +16,7 @@ An application to host the IB past paper questions from the IB document database
   <li>Past History</li>
   <li>Examiner</li>
   <li>Custom Input</li>
-  <li>Localization (French, Trad. Chinese, etc)</li>
+  <li>Localization</li>
   <li>And More!</li>
 </ul>
 

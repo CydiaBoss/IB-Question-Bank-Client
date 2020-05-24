@@ -13,7 +13,7 @@ import com.ib.quest.gui.Error;
  * @author Andrew Wang
  * @version 1.0.4.7
  */
-public class Main {
+public class Main implements Runnable{
 	
 	/**
 	 * The Loader
@@ -40,8 +40,13 @@ public class Main {
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
 			Error.throwError(s.getLocal().get("error.in"), true);
-			
 		}
+		// Launches a Thread
+		new Thread(new Main()).start();
+	}
+
+	@Override
+	public void run() {
 		// Setup
 		s = new Setting();
 		ld = new Loader();

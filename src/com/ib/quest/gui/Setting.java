@@ -4,10 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -33,10 +30,13 @@ import javax.swing.DefaultComboBoxModel;
  * @author Andrew Wang
  * @version 1.0.4.8
  */
-public class Setting extends JPanel {
+public class Setting{
 
-	private static final long serialVersionUID = -5859669926512205632L;
-
+	/**
+	 * Internal Data
+	 */
+	private HashMap<String, String> internal = new HashMap<>();
+ 	
 	/**
 	 * Settings
 	 */
@@ -70,8 +70,7 @@ public class Setting extends JPanel {
 	/**
 	 * File
 	 */
-	private File defConfig,
-				 config;
+	private File config;
 	
 	/**
 	 * Init. the setting manager
@@ -79,17 +78,44 @@ public class Setting extends JPanel {
 	 */
 	public Setting() {
 		// Verify if custom defConfig exist
-		defConfig = new File(ClassLoader.getSystemClassLoader().getResource("file/config.ibqb").getFile());
 		config = new File("config.ibqb");
 		// IF not exist, copy new one from storage
 		if(!config.exists())
 			try {
-				Files.copy(defConfig.toPath(), config.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				genNewFile();
 			} catch (IOException e) {}
+		// Read Internal Settings
+		parseInternal();
 		// Read File
 		parseFile();
 		// Language Import
 		readLang();
+	}
+	
+	/**
+	 * Generate New config.ibqb file
+	 * @throws IOException 
+	 */
+	private void genNewFile() throws IOException {
+		// Creates new blank file
+		config.createNewFile();
+		// Reads from the default file
+		Scanner in = new Scanner(ClassLoader.getSystemClassLoader().getResourceAsStream("file/config.ibqb"), "UTF-8");
+		// Write to new file
+		while(in.hasNextLine()) {
+			String[] ln = in.nextLine().split("=");
+			// Skip bad lines
+			if(ln.length < 2)
+				continue;
+			try {
+				setting.put(ln[0], ln[1]);
+			}catch(ArrayIndexOutOfBoundsException e) {
+				Error.throwError(Main.s.getLocal().get("error.setting"), true);
+			}
+		}
+		in.close();
+		// Update new file
+		updateSetting();
 	}
 	
 	/**
@@ -115,16 +141,34 @@ public class Setting extends JPanel {
 		}
 		rd.close();
 	}
+	
+	/**
+	 * Reads the internal data file
+	 */
+	private void parseInternal() {
+		// Scanner
+		Scanner rd = new Scanner(ClassLoader.getSystemClassLoader().getResourceAsStream("file/internal.ibqb"), "UTF-8");
+		// Scans the File
+		while(rd.hasNextLine()) {
+			String[] ln = rd.nextLine().split("=");
+			// Skip bad lines
+			if(ln.length < 2)
+				continue;
+			try {
+				internal.put(ln[0], ln[1]);
+			}catch(ArrayIndexOutOfBoundsException e) {
+				Error.throwError(Main.s.getLocal().get("error.setting"), true);
+			}
+		}
+		rd.close();
+	}
 
 	/**
 	 * Reads the correct Language File
 	 */
 	private void readLang() {
 		// Scanner
-		Scanner rd = null;
-		try {
-			rd = new Scanner(new File(ClassLoader.getSystemClassLoader().getResource("file/" + setting.get("lang") + ".lang").getFile()), "UTF-8");
-		} catch (FileNotFoundException e) {}
+		Scanner rd = new Scanner(ClassLoader.getSystemClassLoader().getResourceAsStream("file/" + setting.get("lang") + ".lang"), "UTF-8");
 		// Scans the File
 		while(rd.hasNextLine()) {
 			String[] ln = rd.nextLine().split("=");
@@ -161,30 +205,34 @@ public class Setting extends JPanel {
 	 * the mainframe
 	 * @param pre
 	 * the previous panel
+	 * @return
+	 * The Panel
 	 * @wbp.parser.entryPoint
 	 */
-	public void init(JFrame main, JPanel pre) {
+	public JPanel init(JFrame main, JPanel pre) {
+		// Make
+		JPanel set = new JPanel();
 		// Setup
-		setLayout(new BorderLayout(0, 0));
+		set.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel = new JPanel();
-		add(panel, BorderLayout.SOUTH);
+		set.add(panel, BorderLayout.SOUTH);
 		panel.setLayout(new GridLayout(1, 0, 120, 0));
 		
-		JButton canBtn = new JButton("Cancel");
+		JButton canBtn = new JButton(Main.s.getLocal().get("gen.quit"));
 		canBtn.addActionListener(e -> {
-			main.remove(this);
+			main.remove(set);
 			main.add(pre, BorderLayout.CENTER);
 			main.repaint();
 			main.revalidate();
 		});
 		panel.add(canBtn);
 		
-		JButton applyBtn = new JButton("Apply");
+		JButton applyBtn = new JButton(Main.s.getLocal().get("gen.apply"));
 		panel.add(applyBtn);
 		
 		JPanel panel_1 = new JPanel();
-		add(panel_1, BorderLayout.CENTER);
+		set.add(panel_1, BorderLayout.CENTER);
 		GridBagLayout gbl_panel_1 = new GridBagLayout();
 		gbl_panel_1.columnWidths = new int[]{0, 0, 0};
 		gbl_panel_1.rowHeights = new int[]{0, 0};
@@ -192,7 +240,7 @@ public class Setting extends JPanel {
 		gbl_panel_1.rowWeights = new double[]{0.0, Double.MIN_VALUE};
 		panel_1.setLayout(gbl_panel_1);
 		
-		JLabel langLbl = new JLabel("Language:");
+		JLabel langLbl = new JLabel(Main.s.getLocal().get("set.lang") + ": ");
 		GridBagConstraints gbc_langLbl = new GridBagConstraints();
 		gbc_langLbl.insets = new Insets(0, 0, 0, 5);
 		gbc_langLbl.anchor = GridBagConstraints.EAST;
@@ -200,18 +248,12 @@ public class Setting extends JPanel {
 		gbc_langLbl.gridy = 0;
 		panel_1.add(langLbl, gbc_langLbl);
 		
-		// Gets all lang files
-		File[] langs = new File(ClassLoader.getSystemClassLoader().getResource("file").getFile())
-			.listFiles((FilenameFilter) (dir, name) -> {
-				return name.toLowerCase().endsWith(".lang");
-			});
+		// TODO Get internal lang files.
 		
 		// Valid Languages
-		String[] langName = new String[langs.length];
-		
-		// Build Names (Remove .lang & Upper)
+		String[] langName = internal.get("regLang").split(";");
 		for(int i = 0; i < langName.length; i++)
-			langName[i] = langs[i].getName().replace(".lang", "").toUpperCase();
+			langName[i] = langName[i].toUpperCase();
 		
 		JComboBox<String> comboBox = new JComboBox<>();
 		comboBox.setModel(new DefaultComboBoxModel<String>(langName));
@@ -228,8 +270,13 @@ public class Setting extends JPanel {
 			// Update file
 			updateSetting();
 			// Reload everything
-			// TODO Actually Restart
-			Main.sel.restart();
+			new Thread(new Main()).start();
+			// Kill old stuff
+			main.setEnabled(false);
+			main.dispose();
 		});
+		
+		// Return the generated Panel
+		return set;
 	}
 }
