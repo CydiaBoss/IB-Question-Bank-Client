@@ -2,7 +2,7 @@
 An application to host the IB past paper questions from the IB document database.
 
 # Question Bank Website
-<a href='https://www.ibdocuments.com/'>IB Documents</a> is the website where the databases are being hosted. Unfortunately, due to copyright reasons, their databases can be down due to IB examination season.
+<a href='https://www.ibdocuments.com/'>IB Documents</a> is the website where the databases are being hosted. Unfortunately, due to copyright reasons, their databases can be down during the IB examination season.
 
 # Features
 <ul>
@@ -14,10 +14,12 @@ An application to host the IB past paper questions from the IB document database
 <ul>
   <li>Past History</li>
   <li>Examiner</li>
+  <li>Custom Input</li>
+  <li>Localization (French, Trad. Chinese, etc)</li>
   <li>And More!</li>
 </ul>
 
-# Download (1.0.4.5)
+# Download (1.0.4.7 ~ Proto)
 <a href='https://github.com/CydiaBoss/IB-Question-Bank-Client/raw/master/program/IBQB-Proto-Win-Demo.jar'>Windows</a><br>
 <a href='https://github.com/CydiaBoss/IB-Question-Bank-Client/raw/master/program/IBQB-Proto-Demo.jar'>Other OS (Mac, Linux, etc)</a>
 <ul><li>The other os file requires the installation of <a href='https://www.java.com/en/download/'>Java 8</a>.</li></ul>

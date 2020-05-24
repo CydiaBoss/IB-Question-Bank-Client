@@ -3,6 +3,7 @@ package com.ib.quest.gui.questions;
 import com.ib.quest.Loader;
 import com.ib.quest.Loader.QType;
 import com.ib.quest.Loader.Question;
+import com.ib.quest.Main;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -26,7 +27,7 @@ import javax.swing.border.BevelBorder;
  * This is a JPanel for a basic question
  * 
  * @author Andrew Wang
- * @version 1.0.4.5
+ * @version 1.0.4.7
  */
 public class BasicQuestion extends JPanel {
 
@@ -58,9 +59,9 @@ public class BasicQuestion extends JPanel {
 	 * @param ID
 	 * The question's ID
 	 * @param m
-	 * The mainframe
+	 * The mainframe. If null, pre must be null also
 	 * @param pre
-	 * The previous {@link JPanel}
+	 * The previous {@link JPanel}. If null, assume random feature
 	 */
 	public BasicQuestion(Loader ld, String ID, JFrame m, JPanel pre) {
 		
@@ -72,6 +73,7 @@ public class BasicQuestion extends JPanel {
 		parseQParts(ld.getQParts());
 		this.ID = ID;
 		
+		// Builds the Panel
 		setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel = new JPanel();
@@ -90,10 +92,11 @@ public class BasicQuestion extends JPanel {
 		add(panel_1, BorderLayout.SOUTH);
 		panel_1.setLayout(new GridLayout(1, 0, 80, 0));
 		
+		// If it is random feature, do not put a quit button
 		if(m != null && pre != null) {
 		
 			// A back button
-			JButton quitBtn = new JButton("Quit");
+			JButton quitBtn = new JButton(Main.s.getLocal().get("gen.quit"));
 			quitBtn.addActionListener(e -> {
 				m.getContentPane().remove(this);
 				m.getContentPane().add(pre, BorderLayout.CENTER);
@@ -107,7 +110,7 @@ public class BasicQuestion extends JPanel {
 		add(displayPanel, BorderLayout.CENTER);
 		displayPanel.setLayout(c);
 		
-		/* Generate all Question */
+		/* Generate all Question Panel */
 		
 		for(Question q : questions) {
 			
@@ -158,12 +161,16 @@ public class BasicQuestion extends JPanel {
 			
 		}
 		
+		// Determine how the buttons should be built
+		// If only one question, only submit btn
+		// if more, add previous and next btn that changes to submit at the end
 		Box horizontalBox = Box.createHorizontalBox();
 
-		JButton bacBtn = new JButton("Back");
+		JButton bacBtn = new JButton(Main.s.getLocal().get("gen.pre"));
 		
-		JButton nextBtn = new JButton("Next");
+		JButton nextBtn = new JButton(Main.s.getLocal().get("gen.next"));
 		
+		// Should back btn be enabled?
 		if(questions.size() != 1) {
 			
 			panel_1.add(horizontalBox);
@@ -172,8 +179,8 @@ public class BasicQuestion extends JPanel {
 			bacBtn.addActionListener(e -> {
 				c.previous(displayPanel);
 				curSlide--;
-				if(nextBtn.getText().equals("Submit"))
-					nextBtn.setText("Next");
+				if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit")))
+					nextBtn.setText(Main.s.getLocal().get("gen.next"));
 				if(curSlide == 1)
 					bacBtn.setEnabled(false);
 				nextBtn.setEnabled(true);
@@ -182,13 +189,15 @@ public class BasicQuestion extends JPanel {
 			
 			Component horizontalGlue = Box.createHorizontalGlue();
 			horizontalBox.add(horizontalGlue);
-			
-		}
 		
-		if(questions.size() == 1)
-			nextBtn.setText("Submit");
+		// Else, just add the submit btn
+		}else
+			nextBtn.setText(Main.s.getLocal().get("gen.submit"));
+		
+		// Effects of pressing the nextBtn
 		nextBtn.addActionListener(e -> {
-			if(nextBtn.getText().equals("Next")) {
+			// If Btn is in Next Mode
+			if(nextBtn.getText().equals(Main.s.getLocal().get("gen.next"))) {
 				c.next(displayPanel);
 				curSlide++;
 				bacBtn.setEnabled(true);
@@ -196,11 +205,12 @@ public class BasicQuestion extends JPanel {
 					if(m == null && pre == null)
 						nextBtn.setEnabled(false);
 					else {
-						nextBtn.setText("Submit");
+						nextBtn.setText(Main.s.getLocal().get("gen.submit"));
 						if(submit)
 							nextBtn.setEnabled(false);
 					}
 				}
+			// If Btn is in submit mode
 			}else{
 				submit = true;
 				checkAns();
@@ -238,7 +248,8 @@ public class BasicQuestion extends JPanel {
 	 * @wbp.parser.entryPoint
 	 */
 	public void checkAns() {
-		// Adds to all Panels
+		
+		// Adds answers to all Panels
 		for(Question a : answers) {
 			// Removes text area
 			questSlide.get(a.getLabel()).remove(questSlideAns.get(a.getLabel()));
@@ -250,7 +261,7 @@ public class BasicQuestion extends JPanel {
 			ansSlide.add(panel);
 			panel.setLayout(new BorderLayout(0, 10));
 			
-			JLabel urRepLbl = new JLabel("Your Response:");
+			JLabel urRepLbl = new JLabel(Main.s.getLocal().get("quest.rep") + ":");
 			urRepLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel.add(urRepLbl, BorderLayout.NORTH);
 			
@@ -263,7 +274,7 @@ public class BasicQuestion extends JPanel {
 			ansSlide.add(panel_1);
 			panel_1.setLayout(new BorderLayout(0, 10));
 			
-			JLabel ansLbl = new JLabel("The Answer:");
+			JLabel ansLbl = new JLabel(Main.s.getLocal().get("quest.ans") + ":");
 			ansLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_1.add(ansLbl, BorderLayout.NORTH);
 			
@@ -290,6 +301,7 @@ public class BasicQuestion extends JPanel {
 	 * The array of Question Bits
 	 */
 	protected void parseQParts(ArrayList<Question> q) {
+		// Split the question parts
 		for(Question qP : q)
 			if(qP.getType().equals(QType.SPEC))
 				txt += qP.getText() + "\n";

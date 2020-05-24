@@ -1,8 +1,6 @@
 package com.ib.quest;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +24,7 @@ import com.ib.quest.gui.Error;
  * The Loader will Load the Questions off the website or the offline database
  * 
  * @author Andrew Wang
- * @version 1.0.4.5
+ * @version 1.0.4.7
  */
 public class Loader {
 
@@ -36,7 +34,6 @@ public class Loader {
 	
 	/**
 	 * Creates the Loader Object
-	 * @throws MalformedURLException 
 	 */
 	public Loader(){
 		// Remove Error Msg
@@ -58,7 +55,7 @@ public class Loader {
 			pg = c.getPage(Constants.Database.IBDBON);
 		// Switch to Offline
 		}catch (FailingHttpStatusCodeException | IOException e) {
-			Error.throwError("Connection to Website Failed. Check Internet Connection. Switching to Offline.", false);
+			Error.throwError(Main.s.getLocal().get("error.in") + " " + Main.s.getLocal().get("offline"), false);
 			offline();
 		}
 		// Loads the Links
@@ -69,15 +66,12 @@ public class Loader {
 	 * Switch to Offline
 	 */
 	public void offline() {
-		File f = new File("test");
-		f.mkdir();
-		
 		// Try for Offline
 		try {
 			pg = c.getPage(Constants.Database.IBDBOFF);
 		// Nothing works
 		} catch (FailingHttpStatusCodeException | IOException e1) {
-			Error.throwError("Offline Database cannot be found.", true);
+			Error.throwError(Main.s.getLocal().get("error.off.missing"), true);
 		}
 	}
 	
@@ -105,13 +99,13 @@ public class Loader {
 		// Error 403 Forbidden (DMCA Takedown)
 		// Auto switch to offline
 		if(div == null) {
-			Error.throwError("A DMCA Takedown order has been issued. The Databases are down. Switching to Offline.", false);
+			Error.throwError(Main.s.getLocal().get("error.dmca") + " " + Main.s.getLocal().get("offline"), false);
 			offline();
 			div = pg.getFirstByXPath("//div[@class='row services']");
 		}
 		// Offline Corruption
 		if(div == null) {
-			Error.throwError("Offline is courrpted. Exiting", true);
+			Error.throwError(Main.s.getLocal().get("error.off.corrupt"), true);
 		}
 		// Copy the Links down
 		for(HtmlElement a : div.getHtmlElementDescendants()) {
@@ -149,12 +143,12 @@ public class Loader {
 		HtmlPage dbPage = null;
 		// Verify Anchor
 		if(!links.contains(a))
-			Error.throwError("Internal Error Detected", true);
+			Error.throwError(Main.s.getLocal().get("error.in"), true);
 		// Proceed
 		try {
 			dbPage = a.click();
 		} catch (IOException e) {
-			Error.throwError("Invalid Links. Please check to make sure you have the latest software.", true);
+			Error.throwError(Main.s.getLocal().get("error.link"), true);
 		}
 		// Grabs all the topics
 		HtmlTableBody body = dbPage.getFirstByXPath("//table[@class='table']/tbody");
@@ -195,12 +189,12 @@ public class Loader {
 		HtmlPage quests = null;
 		// Verify Anchor
 		if(!subj.contains(a))
-			Error.throwError("Internal Error Detected", true);
+			Error.throwError(Main.s.getLocal().get("error.in"), true);
 		// Continue
 		try {
 			quests = a.click();
 		} catch (IOException e) {
-			Error.throwError("Invalid Links. Please check to make sure you have the latest software.", true);
+			Error.throwError(Main.s.getLocal().get("error.link"), true);
 		}
 		// Detection
 		List<HtmlElement> rawQues = quests.getByXPath("//div[@class='module' and h3='Directly related questions']/ul/li");
@@ -397,11 +391,11 @@ public class Loader {
 		try {
 			questPg = questions.get(ID).click();
 		} catch (IOException e) {
-			Error.throwError("Invalid Links. Please check to make sure you have the latest software.", true);
+			Error.throwError(Main.s.getLocal().get("error.link"), true);
 		}
 		// Verify
 		if(questPg == null)
-			Error.throwError("Internal Error Detected", true);
+			Error.throwError(Main.s.getLocal().get("error.in"), true);
 		// Iterate through descendants to find data
 		boolean isQuest = false,
 				isAns = false;

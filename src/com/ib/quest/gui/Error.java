@@ -6,6 +6,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import com.ib.quest.Main;
+
 import java.awt.Toolkit;
 import java.awt.Component;
 
@@ -14,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.ImageIcon;
 import java.awt.Font;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
@@ -21,9 +24,9 @@ import javax.swing.SwingUtilities;
  * Error Framework
  * 
  * @author Andrew Wang
- * @version 1.0.4.5
+ * @version 1.0.4.7
  */
-public class Error extends JFrame {
+public class Error extends JDialog {
 
 	private static final long serialVersionUID = -4335766057253805362L;
 	
@@ -46,13 +49,13 @@ public class Error extends JFrame {
 	}
 	
 	/**
-	 * Create the frame.
+	 * Create the frame to display the error message
 	 */
 	private Error(String txt, boolean crash) {
 		setAlwaysOnTop(true);
-		setTitle("Error");
+		setTitle(Main.s.getLocal().get("error"));
 		setResizable(false);
-		setIconImage(Toolkit.getDefaultToolkit().getImage(Error.class.getResource("/img/IBRR.png")));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(Error.class.getResource("/img/IBRRI.png")));
 
 		if(crash)
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

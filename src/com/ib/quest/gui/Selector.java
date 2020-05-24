@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.ib.quest.Loader;
+import com.ib.quest.Main;
 import com.ib.quest.gui.questions.BasicQuestion;
 
 import javax.swing.JList;
@@ -38,12 +39,15 @@ import javax.swing.JSpinner;
 import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.SpinnerListModel;
 import java.awt.CardLayout;
+import javax.swing.ImageIcon;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 
 /**
  * Selector Window
  * 
  * @author Andrew Wang
- * @version 1.0.4.5
+ * @version 1.0.4.7
  */
 public class Selector {
 
@@ -60,7 +64,9 @@ public class Selector {
 	 */
 	public Selector(Loader ld) {
 		this.ld = ld;
+		// Build
 		initialize();
+		// Display
 		EventQueue.invokeLater(() -> {
 			try {
 				main.setVisible(true);
@@ -68,21 +74,39 @@ public class Selector {
 		});
 	}
 	
+	/**
+	 * Reloads the JFrame to properly display {@link Component} 
+	 */
 	private void reload() {
 		main.repaint();
 		main.revalidate();
 	}
 	
 	/**
+	 * Restarts Everything
+	 */
+	public void restart() {
+		// Hide
+		main.setVisible(false);
+		// Restart
+		initialize();
+		// Reload
+		reload();
+		// Show
+		main.setEnabled(true);
+	}
+	
+	/**
 	 * Initialize the contents of the frame.
+	 * @wbp.parser.entryPoint
 	 */
 	private void initialize() {
 		// Initialize
-		main = new JFrame("IB Question Bank Client");
-		main.setIconImage(Toolkit.getDefaultToolkit().getImage(Error.class.getResource("/img/IBRR.png")));
+		main = new JFrame(Main.s.getLocal().get("gen.title"));
+		main.setIconImage(Toolkit.getDefaultToolkit().getImage(Selector.class.getResource("/img/IBRRI.png")));
 		main.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		main.setResizable(false);
-		main.setSize(Constants.Size.SUB_W , Constants.Size.SUB_H + Constants.Size.INT_SIZE * ld.getDBs().size());
+		main.setSize(Constants.Size.STAN_W , Constants.Size.STAN_H);
 		// Spawns the JFrame in the middle of the screen
 		main.setLocationRelativeTo(null);
 		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -102,7 +126,44 @@ public class Selector {
 		
 		subj = new JPanel();
 		main.getContentPane().add(subj, BorderLayout.CENTER);
-		subj.setLayout(new GridLayout(0, 1, 0, 20));
+		subj.setLayout(new GridLayout(0, 1, 0, 5));
+		
+		Box horizontalBox = Box.createHorizontalBox();
+		subj.add(horizontalBox);
+		
+		JLabel titleLbl = new JLabel("<html>" + Main.s.getLocal().get("subj.intro") + "</html>");
+		titleLbl.setVerticalAlignment(SwingConstants.BOTTOM);
+		titleLbl.setFont(new Font("Tahoma", Font.BOLD, 32));
+		titleLbl.setIcon(new ImageIcon(Selector.class.getResource("/img/IBRRLB.png")));
+		horizontalBox.add(titleLbl);
+		
+		JPanel panel_1 = new JPanel();
+		horizontalBox.add(panel_1);
+		GridBagLayout gbl_panel_1 = new GridBagLayout();
+		gbl_panel_1.columnWidths = new int[]{83, 0};
+		gbl_panel_1.rowHeights = new int[]{64, 0};
+		gbl_panel_1.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_panel_1.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+		panel_1.setLayout(gbl_panel_1);
+		
+		JButton setBtn = new JButton("");
+		setBtn.addActionListener(e -> {
+			Main.s.init(main, subj);
+			main.remove(subj);
+			main.add(Main.s, BorderLayout.CENTER);
+			reload();
+		});
+		setBtn.setIcon(new ImageIcon(Selector.class.getResource("/img/COG.png")));
+		GridBagConstraints gbc_setBtn = new GridBagConstraints();
+		gbc_setBtn.anchor = GridBagConstraints.EAST;
+		gbc_setBtn.fill = GridBagConstraints.VERTICAL;
+		gbc_setBtn.gridx = 0;
+		gbc_setBtn.gridy = 0;
+		panel_1.add(setBtn, gbc_setBtn);
+		
+		JPanel panel = new JPanel();
+		subj.add(panel);
+		panel.setLayout(new GridLayout(0, 2, 10, 20));
 		
 		// Button Addition
 		for(HtmlAnchor a : ld.getDBs()) {
@@ -110,7 +171,7 @@ public class Selector {
 			bt.addActionListener(e -> 
 				topicSelection(a)
 			);
-			subj.add(bt);
+			panel.add(bt);
 		}
 	}
 
@@ -155,21 +216,19 @@ public class Selector {
 		panel_2.setLayout(new GridLayout(1, 0, 120, 0));
 		
 		// A back button
-		JButton backBtn = new JButton("Back");
+		JButton backBtn = new JButton(Main.s.getLocal().get("gen.back"));
 		backBtn.addActionListener(e -> {
 			main.getContentPane().remove(topic);
 			main.getContentPane().add(subj, BorderLayout.CENTER);
-			main.setSize(Constants.Size.SUB_W , 
-					Constants.Size.SUB_H + Constants.Size.INT_SIZE * ld.getDBs().size());
 			reload();
 		});
 		panel_2.add(backBtn);
 		
-		JButton nextBtn = new JButton("Next");
+		JButton nextBtn = new JButton(Main.s.getLocal().get("gen.next"));
 		nextBtn.addActionListener(e -> {
 			// Throw if No Select
 			if(list.getSelectedIndex() < 0) {
-				Error.throwError("Please select a Topic", false);
+				Error.throwError(Main.s.getLocal().get("error.top.sel"), false);
 				return;
 			}
 			// Gen
@@ -184,10 +243,9 @@ public class Selector {
 		main.getContentPane().remove(subj);
 		main.getContentPane().add(topic, BorderLayout.CENTER);
 		
-		JLabel instruLbl = new JLabel("Please select a topic.");
+		JLabel instruLbl = new JLabel(Main.s.getLocal().get("topic.intro"));
 		instruLbl.setFont(new Font("Tahoma", Font.BOLD, 14));
 		topic.add(instruLbl, BorderLayout.NORTH);
-		main.setSize(Constants.Size.STAN_W, Constants.Size.STAN_H);
 		reload();
 	}
 	
@@ -209,7 +267,7 @@ public class Selector {
 		panel.setLayout(new GridLayout(0, 1, 0, 0));
 		
 		// Create the 2D Array from HashMap
-		String[] titles = {"Question ID", "Question"};
+		String[] titles = {Main.s.getLocal().get("quest.sel.id"), Main.s.getLocal().get("quest.sel.qu")};
 		String[][] data = new String[ld.getQues().size()][2];
 		
 		int i = 0;
@@ -244,7 +302,7 @@ public class Selector {
 		// Default Disabled
 		tab.setEnabled(false);
 		
-		JLabel instrLbl = new JLabel("Choose a random to get random questions or pick a question.");
+		JLabel instrLbl = new JLabel(Main.s.getLocal().get("quest.intro"));
 		instrLbl.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel.add(instrLbl);
 		
@@ -256,11 +314,11 @@ public class Selector {
 		quest.add(scrollPane);
 
 		JSpinner spinner = new JSpinner();
-		spinner.setModel(new SpinnerListModel(new Integer[] {1, 3, 5, 10, 20, 25, 30}));
+		spinner.setModel(new SpinnerListModel(Constants.QData.size));
 		// No Typing in JSPinner
 		((DefaultEditor) spinner.getEditor()).getTextField().setEditable(false);
 		
-		JRadioButton randomRdBtn = new JRadioButton("Random");
+		JRadioButton randomRdBtn = new JRadioButton(Main.s.getLocal().get("quest.ran"));
 		randomRdBtn.setSelected(true);
 		randomRdBtn.setHorizontalAlignment(SwingConstants.CENTER);
 		randomRdBtn.addActionListener(e -> {
@@ -279,12 +337,12 @@ public class Selector {
 		Component horizontalGlue = Box.createHorizontalGlue();
 		horizontalBox.add(horizontalGlue);
 		
-		JLabel questAmtLbl = new JLabel("Amount of Questions: ");
+		JLabel questAmtLbl = new JLabel(Main.s.getLocal().get("quest.ran.amt") + ": ");
 		horizontalBox.add(questAmtLbl);
 		
 		horizontalBox.add(spinner);
 		
-		JRadioButton selRdBtn = new JRadioButton("Selection");
+		JRadioButton selRdBtn = new JRadioButton(Main.s.getLocal().get("quest.sel"));
 		selRdBtn.setHorizontalAlignment(SwingConstants.CENTER);
 		selRdBtn.addActionListener(e -> {
 			if(selRdBtn.isSelected()) {
@@ -319,7 +377,7 @@ public class Selector {
 		panel_2.setLayout(new GridLayout(1, 0, 160, 0));
 		
 		// A back button
-		JButton backBtn = new JButton("Back");
+		JButton backBtn = new JButton(Main.s.getLocal().get("gen.back"));
 		backBtn.addActionListener(e -> {
 			main.getContentPane().remove(quest);
 			main.getContentPane().add(topic, BorderLayout.CENTER);
@@ -327,11 +385,11 @@ public class Selector {
 		});
 		panel_2.add(backBtn);
 		
-		JButton stBtn = new JButton("Start");
+		JButton stBtn = new JButton(Main.s.getLocal().get("gen.submit"));
 		stBtn.addActionListener(e -> {
 			if(selRdBtn.isSelected()) {
 				if(tab.getSelectedRow() < 0) {
-					Error.throwError("Please select a Question", false);
+					Error.throwError(Main.s.getLocal().get("error.quest.sel"), false);
 					return;
 				}
 				main.getContentPane().remove(quest);
@@ -360,7 +418,6 @@ public class Selector {
 	
 	/**
 	 * Creates the random page
-	 * @wbp.parser.entryPoint
 	 */
 	private void ranQuestSlide(int amt) {
 		
@@ -399,11 +456,11 @@ public class Selector {
 		ran.add(panel_2, BorderLayout.NORTH);
 		panel_2.setLayout(new GridLayout(0, 1, 0, 10));
 		
-		JLabel titleLbl = new JLabel(amt + " Random Questions");
+		JLabel titleLbl = new JLabel(String.format(Main.s.getLocal().get("ran.intro"), amt));
 		titleLbl.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel_2.add(titleLbl);
 		
-		JLabel curQLbl = new JLabel("Question " + curSlide + " of " + amt);
+		JLabel curQLbl = new JLabel(String.format(Main.s.getLocal().get("ran.count"), curSlide, amt));
 		curQLbl.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		panel_2.add(curQLbl);
 		
@@ -418,7 +475,7 @@ public class Selector {
 		ran.add(panel_1, BorderLayout.SOUTH);
 		panel_1.setLayout(new GridLayout(1, 0, 60, 0));
 		
-		JButton quitBtn = new JButton("Quit");
+		JButton quitBtn = new JButton(Main.s.getLocal().get("gen.quit"));
 		quitBtn.addActionListener(e -> {
 			main.getContentPane().remove(ran);
 			main.getContentPane().add(quest, BorderLayout.CENTER);
@@ -428,9 +485,9 @@ public class Selector {
 		
 		Box horizontalBox = Box.createHorizontalBox();
 
-		JButton bacBtn = new JButton("Back");
+		JButton bacBtn = new JButton(Main.s.getLocal().get("gen.pre"));
 		
-		JButton nextBtn = new JButton("Next");
+		JButton nextBtn = new JButton(Main.s.getLocal().get("gen.next"));
 		
 		if(amt != 1) {
 			
@@ -440,9 +497,9 @@ public class Selector {
 			bacBtn.addActionListener(e -> {
 				c.previous(panel);
 				curSlide--;
-				curQLbl.setText("Question " + curSlide + " of " + amt);
-				if(nextBtn.getText().equals("Submit"))
-					nextBtn.setText("Next");
+				curQLbl.setText(String.format(Main.s.getLocal().get("ran.count"), curSlide, amt));
+				if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit")))
+					nextBtn.setText(Main.s.getLocal().get("gen.next"));
 				if(curSlide == 1)
 					bacBtn.setEnabled(false);
 				nextBtn.setEnabled(true);
@@ -453,15 +510,15 @@ public class Selector {
 			horizontalBox.add(horizontalGlue);
 			
 		}else
-			nextBtn.setText("Submit");
+			nextBtn.setText(Main.s.getLocal().get("gen.submit"));
 		nextBtn.addActionListener(e -> {
-			if(nextBtn.getText().equals("Next")) {
+			if(nextBtn.getText().equals(Main.s.getLocal().get("gen.next"))) {
 				c.next(panel);
 				curSlide++;
-				curQLbl.setText("Question " + curSlide + " of " + amt);
+				curQLbl.setText(String.format(Main.s.getLocal().get("ran.count"), curSlide, amt));
 				bacBtn.setEnabled(true);
 				if(curSlide == amt) {
-					nextBtn.setText("Submit");
+					nextBtn.setText(Main.s.getLocal().get("gen.submit"));
 					if(submit)
 						nextBtn.setEnabled(false);
 				}
@@ -474,10 +531,10 @@ public class Selector {
 				curSlide = 1;
 				// Prevent Btn from being named next even tho there is only 1 question
 				if(amt != 1)
-					nextBtn.setText("Next");
+					nextBtn.setText(Main.s.getLocal().get("gen.next"));
 				else 
 					nextBtn.setEnabled(false);
-				curQLbl.setText("Question " + curSlide + " of " + amt);
+				curQLbl.setText(String.format(Main.s.getLocal().get("ran.count"), curSlide, amt));
 				bacBtn.setEnabled(false);
 				reload();
 			}

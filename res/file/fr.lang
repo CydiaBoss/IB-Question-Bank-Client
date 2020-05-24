@@ -1,0 +1,37 @@
+gen.title=Client de base de question de BI
+gen.back=Retour
+gen.next=Prochain
+gen.pre=Précédent
+gen.start=Commence
+gen.submit=Soumets
+gen.quit=Annulé
+
+subj.intro=Client de base de question d'IB Document
+
+topic.intro=Sélectionne un sujet svp.
+
+quest.intro=Choisis aléatoire pour les questions aléatoires ou sélectionne une question.
+quest.ran=Aléatoire
+quest.ran.amt=Quantité des questions
+quest.sel=Sélection
+quest.sel.id=Numéro de question
+quest.sel.qu=Question
+
+quest.rep=Votre réponse
+quest.ans=La bonne réponse
+
+ran.intro=%d Questions aléatoires
+ran.count=Question %1$d de %2$d
+
+offline=Changé du mode hors ligne
+
+error=Erreur
+error.in=Une erreur interne est décelé
+error.connect=Connexion à la base de données en ligne est échoué. Vérifie la connexion Internet.
+error.off.missing=La base de données hors ligne est manquante.
+error.off.corrupt=La base de données hors ligne est corrompue.
+error.dmca=Un avis de retrait DMCA a été remis. La base de données en ligne est temporaire hors ligne.
+error.link=Liens erronés. Vérifie que vous avez la version dernière.
+error.setting=le fichier de paramètres est erroné.
+error.top.sel=Vous devez sélectionner un sujet pour continuer.
+error.quest.sel=Vous devez sélectionner une question pour continuer.

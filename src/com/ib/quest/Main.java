@@ -4,25 +4,31 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import com.ib.quest.gui.Selector;
+import com.ib.quest.gui.Setting;
 import com.ib.quest.gui.Error;
 
 /**
  * The Main Class
  * 
  * @author Andrew Wang
- * @version 1.0.4.5
+ * @version 1.0.4.7
  */
 public class Main {
-	
-	/**
-	 * My own main thread
-	 */
-	public static Thread t;
 	
 	/**
 	 * The Loader
 	 */
 	private static Loader ld;
+	
+	/**
+	 * Setting
+	 */
+	public static Setting s;
+	
+	/**
+	 * Selector
+	 */
+	public static Selector sel;
 	
 	/**
 	 * Main 
@@ -33,12 +39,13 @@ public class Main {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
-			Error.throwError("Internal Error Detected", true);
+			Error.throwError(s.getLocal().get("error.in"), true);
 			
 		}
 		// Setup
-		ld = new Loader();	
-		new Selector(ld);
+		s = new Setting();
+		ld = new Loader();
+		sel = new Selector(ld);
 	}
 
 }

@@ -1,0 +1,37 @@
+gen.title=IB Question Bank Client
+gen.back=Back
+gen.next=Next
+gen.pre=Previous
+gen.start=Start
+gen.submit=Submit
+gen.quit=Cancel
+
+subj.intro=IB Document Question Bank Client
+
+topic.intro=Please select a topic.
+
+quest.intro=Choose random to get random questions or pick a question.
+quest.ran=Random
+quest.ran.amt=Amount of Questions
+quest.sel=Selection
+quest.sel.id=Question ID
+quest.sel.qu=Question
+
+quest.rep=Your Response
+quest.ans=The Answer
+
+ran.intro=%d Random Question
+ran.count=Question %1$d of %2$d
+
+offline=Switching to offline mode.
+
+error=Error
+error.in=Internal Error Detected
+error.connect=Connection to online database failed. Check internet connection.
+error.off.missing=Offline database cannot be found.
+error.off.corrupt=Offline database is corrupted.
+error.dmca=A DMCA takedown order has been issued. The online database is temporary offline.
+error.link=Invalid Links. Please ensure that you have the latest version.
+error.setting=Invalid setting file detected.
+error.top.sel=You have to select a topic to proceed.
+error.quest.sel=You have to select a question to proceed.
