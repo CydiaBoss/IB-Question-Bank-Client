@@ -140,8 +140,7 @@ public class Selector {
 		});
 		setBtn.setIcon(new ImageIcon(Selector.class.getResource("/img/COG.png")));
 		GridBagConstraints gbc_setBtn = new GridBagConstraints();
-		gbc_setBtn.anchor = GridBagConstraints.EAST;
-		gbc_setBtn.fill = GridBagConstraints.VERTICAL;
+		gbc_setBtn.anchor = GridBagConstraints.NORTHEAST;
 		gbc_setBtn.gridx = 0;
 		gbc_setBtn.gridy = 0;
 		panel_1.add(setBtn, gbc_setBtn);
@@ -152,7 +151,7 @@ public class Selector {
 		
 		// Button Addition
 		for(HtmlAnchor a : ld.getDBs()) {
-			JButton bt = new JButton(a.asText().trim());
+			JButton bt = new JButton(Main.s.getLocal().get("main." + a.asText().trim().toLowerCase()));
 			bt.addActionListener(e -> 
 				topicSelection(a)
 			);

@@ -7,6 +7,9 @@ gen.submit=Soumets
 gen.quit=Annuler
 gen.apply=Appliquer
 
+main.chemistry=La chimie
+main.physics=La physique
+
 set.lang=Langue
 
 subj.intro=Client de base de question d'IB Document
@@ -22,6 +25,7 @@ quest.sel.qu=Question
 
 quest.rep=Votre réponse
 quest.ans=La bonne réponse
+quest.rew=La note récompensé
 
 ran.intro=%d Questions aléatoires
 ran.count=Question %1$d de %2$d

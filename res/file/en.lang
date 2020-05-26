@@ -7,6 +7,9 @@ gen.submit=Submit
 gen.quit=Cancel
 gen.apply=Apply
 
+main.chemistry=Chemistry
+main.physics=Physics
+
 set.lang=Language
 
 subj.intro=IB Document Question Bank Client
@@ -22,6 +25,7 @@ quest.sel.qu=Question
 
 quest.rep=Your Response
 quest.ans=The Answer
+quest.rew=Marks Rewarded
 
 ran.intro=%d Random Question
 ran.count=Question %1$d of %2$d

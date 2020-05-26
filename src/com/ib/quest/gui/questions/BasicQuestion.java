@@ -217,6 +217,9 @@ public class BasicQuestion extends JPanel {
 				c.first(displayPanel);
 				curSlide = 1;
 				bacBtn.setEnabled(false);
+				// Disable Submit button
+				if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit")))
+					nextBtn.setEnabled(false);
 				m.repaint();
 				m.revalidate();
 			}
@@ -251,6 +254,13 @@ public class BasicQuestion extends JPanel {
 		
 		// Adds answers to all Panels
 		for(Question a : answers) {
+			// Retrieve the question
+			Question qu = null;
+			for(Question q : questions)
+				if(q.getLabel().equals(a.getLabel())) {
+					qu = q;
+					break;
+				}
 			// Removes text area
 			questSlide.get(a.getLabel()).remove(questSlideAns.get(a.getLabel()));
 			// Replace with a JPanel
@@ -284,7 +294,8 @@ public class BasicQuestion extends JPanel {
 			panel_1.add(realAnsLbl, BorderLayout.CENTER);
 			
 			// Mark some sort of mark calculating system
-			JLabel markLbl = new JLabel("[" + "Predicted Marks" + "]");
+			JLabel markLbl = new JLabel(Main.s.getLocal().get("quest.rew") + ": [" + 
+					gradeAns(questSlideAns.get(a.getLabel()).getText(), a.getText(), qu.getMark()) + "]");
 			markLbl.setHorizontalAlignment(SwingConstants.TRAILING);
 			markLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_1.add(markLbl, BorderLayout.SOUTH);
@@ -310,5 +321,31 @@ public class BasicQuestion extends JPanel {
 			else
 				answers.add(qP);
 				
+	}
+	
+	/**
+	 * Grades the answer
+	 * 
+	 * @param urRep
+	 * The response given
+	 * @param ans
+	 * The correct answer
+	 * @param value
+	 * Answer worth
+	 * 
+	 * @return
+	 * Amount rewarded
+	 */
+	private int gradeAns(String urRep, String ans, int value) {
+		// If you get the exact answer
+		// You should get full marks
+		if(ans.equals(urRep))
+			return value;
+		// If only one mark
+		// Must contain the answer at least
+		if(value == 1)
+			return (urRep.contains(ans))? value : 0;
+		
+		return value;
 	}
 }
