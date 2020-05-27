@@ -169,8 +169,10 @@ public class Selector {
 		panel.setLayout(new GridLayout(0, 2, 10, 20));
 		
 		// Button Addition
+		// TODO Will have to update later as Math HL and Math SL will interfer  
 		for(HtmlAnchor a : ld.getDBs()) {
 			JButton bt = new JButton(Main.s.getLocal().get("main." + a.asText().trim().toLowerCase()));
+			bt.setIcon(new ImageIcon(Selector.class.getResource("/img/subj/" + a.asText().trim().toUpperCase().substring(0, 4) + ".png")));
 			bt.addActionListener(e -> 
 				topicSelection(a)
 			);
