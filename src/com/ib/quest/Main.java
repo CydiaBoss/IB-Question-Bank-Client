@@ -6,6 +6,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import com.ib.quest.gui.Selector;
 import com.ib.quest.gui.Setting;
 import com.ib.quest.gui.Error;
+import com.ib.quest.gui.History;
 
 /**
  * The Main Class
@@ -31,6 +32,11 @@ public class Main implements Runnable{
 	public static Selector sel;
 	
 	/**
+	 * History
+	 */
+	public static History h;
+	
+	/**
 	 * Main 
 	 */
 	public static void main(String[] args) {
@@ -45,10 +51,14 @@ public class Main implements Runnable{
 		new Thread(new Main()).start();
 	}
 
+	/**
+	 * The Starter
+	 */
 	@Override
 	public void run() {
 		// Setup
 		s = new Setting();
+		h = new History();
 		ld = new Loader();
 		sel = new Selector(ld);
 	}

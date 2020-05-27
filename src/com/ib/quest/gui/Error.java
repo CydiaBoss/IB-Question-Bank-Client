@@ -52,6 +52,7 @@ public class Error extends JDialog {
 	 * Create the frame to display the error message
 	 */
 	private Error(String txt, boolean crash) {
+		super((JFrame) null, Main.s.getLocal().get("error"), crash);
 		setAlwaysOnTop(true);
 		setTitle(Main.s.getLocal().get("error"));
 		setResizable(false);

@@ -6,11 +6,19 @@ gen.start=Start
 gen.submit=Submit
 gen.quit=Cancel
 gen.apply=Apply
+gen.reset=Reset
 
 main.chemistry=Chemistry
 main.physics=Physics
 
+set=Settings
 set.lang=Language
+
+hist=History
+hist.date=Date
+hist.mark=Marks
+hist.done=Questions Done
+hist.avg=Average
 
 subj.intro=IB Document Question Bank Client
 

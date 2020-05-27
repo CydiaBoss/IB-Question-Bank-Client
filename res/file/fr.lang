@@ -6,11 +6,19 @@ gen.start=Commence
 gen.submit=Soumets
 gen.quit=Annuler
 gen.apply=Appliquer
+gen.reset=Remettre
 
 main.chemistry=La chimie
 main.physics=La physique
 
+set=Les paramètres
 set.lang=Langue
+
+hist=La historique
+hist.date=Date
+hist.mark=Notes
+hist.done=Questions terminées
+hist.avg=Moyenne
 
 subj.intro=Client de base de question d'IB Document
 

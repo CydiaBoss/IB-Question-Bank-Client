@@ -14,6 +14,7 @@ import javax.swing.JTextArea;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.awt.GridLayout;
+import java.time.LocalDateTime;
 import java.awt.BorderLayout;
 
 import java.awt.Font;
@@ -38,6 +39,7 @@ public class BasicQuestion extends JPanel {
 	ArrayList<Question> questions, 
 						answers;
 	private String ID;
+	private int total = 0;
 	
 	/* Question Counter */
 	private int curSlide = 1;
@@ -50,6 +52,13 @@ public class BasicQuestion extends JPanel {
 	
 	/* Submitted */ 
 	private boolean submit = false;
+	
+	/**
+	 * Get Total Marks
+	 */
+	public int getTotal() {
+		return total;
+	}
 	
 	/**
 	 * Creates the Panel
@@ -137,6 +146,7 @@ public class BasicQuestion extends JPanel {
 			panel_4.add(quesLbl, BorderLayout.CENTER);
 			
 			JLabel markLbl = new JLabel("[" + q.getMark() + "]");
+			total += q.getMark();
 			markLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			markLbl.setAlignmentX(RIGHT_ALIGNMENT);
 			panel_4.add(markLbl, BorderLayout.EAST);
@@ -213,12 +223,17 @@ public class BasicQuestion extends JPanel {
 			// If Btn is in submit mode
 			}else{
 				submit = true;
-				checkAns();
+				int mks = checkAns();
+				// Adds to history
+				Main.h.addEntry(LocalDateTime.now(), ID, mks, total);
 				c.first(displayPanel);
 				curSlide = 1;
 				bacBtn.setEnabled(false);
+				// Change to Next if need
+				if(questions.size() > 1)
+					nextBtn.setText(Main.s.getLocal().get("gen.next"));
 				// Disable Submit button
-				if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit")))
+				if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit"))) 
 					nextBtn.setEnabled(false);
 				m.repaint();
 				m.revalidate();
@@ -248,9 +263,14 @@ public class BasicQuestion extends JPanel {
 	
 	/**
 	 * Adds the answers onto the text
+	 * 
+	 * @return
+	 * The total grade
 	 * @wbp.parser.entryPoint
 	 */
-	public void checkAns() {
+	public int checkAns() {
+		
+		int totalMrk = 0;
 		
 		// Adds answers to all Panels
 		for(Question a : answers) {
@@ -294,8 +314,9 @@ public class BasicQuestion extends JPanel {
 			panel_1.add(realAnsLbl, BorderLayout.CENTER);
 			
 			// Mark some sort of mark calculating system
-			JLabel markLbl = new JLabel(Main.s.getLocal().get("quest.rew") + ": [" + 
-					gradeAns(questSlideAns.get(a.getLabel()).getText(), a.getText(), qu.getMark()) + "]");
+			int ansRew = gradeAns(questSlideAns.get(a.getLabel()).getText(), a.getText(), qu.getMark());
+			JLabel markLbl = new JLabel(Main.s.getLocal().get("quest.rew") + ": [" + ansRew + "]");
+			totalMrk += ansRew;
 			markLbl.setHorizontalAlignment(SwingConstants.TRAILING);
 			markLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_1.add(markLbl, BorderLayout.SOUTH);
@@ -303,6 +324,8 @@ public class BasicQuestion extends JPanel {
 			// Add Back
 			questSlide.get(a.getLabel()).add(ansSlide, BorderLayout.CENTER);
 		}
+		
+		return totalMrk;
 	}
 	
 	/**

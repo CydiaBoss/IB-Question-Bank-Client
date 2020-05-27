@@ -4,10 +4,12 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import java.awt.Dialog.ModalExclusionType;
+import java.time.LocalDateTime;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EventObject;
 
 import javax.swing.JButton;
 import java.awt.BorderLayout;
@@ -42,12 +44,13 @@ import java.awt.CardLayout;
 import javax.swing.ImageIcon;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
 /**
  * Selector Window
  * 
  * @author Andrew Wang
- * @version 1.0.4.7
+ * @version 1.0.4.9
  */
 public class Selector {
 
@@ -127,9 +130,9 @@ public class Selector {
 		horizontalBox.add(panel_1);
 		GridBagLayout gbl_panel_1 = new GridBagLayout();
 		gbl_panel_1.columnWidths = new int[]{83, 0};
-		gbl_panel_1.rowHeights = new int[]{64, 0};
+		gbl_panel_1.rowHeights = new int[]{64, 0, 0};
 		gbl_panel_1.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_panel_1.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+		gbl_panel_1.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
 		panel_1.setLayout(gbl_panel_1);
 		
 		JButton setBtn = new JButton("");
@@ -139,11 +142,27 @@ public class Selector {
 			reload();
 		});
 		setBtn.setIcon(new ImageIcon(Selector.class.getResource("/img/COG.png")));
+		setBtn.setToolTipText(Main.s.getLocal().get("set"));
 		GridBagConstraints gbc_setBtn = new GridBagConstraints();
+		gbc_setBtn.insets = new Insets(0, 0, 5, 0);
 		gbc_setBtn.anchor = GridBagConstraints.NORTHEAST;
 		gbc_setBtn.gridx = 0;
 		gbc_setBtn.gridy = 0;
 		panel_1.add(setBtn, gbc_setBtn);
+		
+		JButton histBtn = new JButton();
+		histBtn.addActionListener(e -> {
+			main.remove(subj);
+			main.add(Main.h.genHistPanel(main, subj), BorderLayout.CENTER);
+			reload();
+		});
+		histBtn.setIcon(new ImageIcon(Selector.class.getResource("/img/HIST.png")));
+		histBtn.setToolTipText(Main.s.getLocal().get("hist"));
+		GridBagConstraints gbc_histBtn = new GridBagConstraints();
+		gbc_histBtn.anchor = GridBagConstraints.NORTHEAST;
+		gbc_histBtn.gridx = 0;
+		gbc_histBtn.gridy = 1;
+		panel_1.add(histBtn, gbc_histBtn);
 		
 		JPanel panel = new JPanel();
 		subj.add(panel);
@@ -192,7 +211,7 @@ public class Selector {
 		topic.add(panel_1, BorderLayout.SOUTH);
 		panel_1.setLayout(new BorderLayout(0, 0));
 		
-		Component verticalStrut_1 = Box.createVerticalStrut(20);
+		Component verticalStrut_1 = Box.createVerticalStrut(10);
 		panel_1.add(verticalStrut_1, BorderLayout.NORTH);
 		
 		JPanel panel_2 = new JPanel();
@@ -269,7 +288,7 @@ public class Selector {
 			 * Disables Editing
 			 */
 			@Override
-			public boolean editCellAt(int row, int column, java.util.EventObject e) {
+			public boolean editCellAt(int row, int column, EventObject e) {
              	return false;
           	}
 		};
@@ -298,7 +317,7 @@ public class Selector {
 		quest.add(scrollPane);
 
 		JSpinner spinner = new JSpinner();
-		spinner.setModel(new SpinnerListModel(Constants.QData.size));
+		spinner.setModel(new SpinnerListModel(Constants.QData.SIZE));
 		// No Typing in JSPinner
 		((DefaultEditor) spinner.getEditor()).getTextField().setEditable(false);
 		
@@ -509,8 +528,12 @@ public class Selector {
 			// Reveal Answer and Move back to slide 1
 			}else{
 				submit = true;
-				for(BasicQuestion bQ : selQ)
-					bQ.checkAns();
+				int total = 0,
+					mks = 0;
+				for(BasicQuestion bQ : selQ) {
+					mks += bQ.checkAns();
+					total += bQ.getTotal();
+				}
 				c.first(panel);
 				curSlide = 1;
 				// Prevent Btn from being named next even tho there is only 1 question
@@ -520,6 +543,7 @@ public class Selector {
 					nextBtn.setEnabled(false);
 				curQLbl.setText(String.format(Main.s.getLocal().get("ran.count"), curSlide, amt));
 				bacBtn.setEnabled(false);
+				Main.h.addEntry(LocalDateTime.now(), "Q" + amt + ".RND", mks, total);
 				reload();
 			}
 		});

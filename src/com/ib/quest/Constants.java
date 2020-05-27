@@ -72,7 +72,24 @@ public class Constants {
 		/**
 		 * Random Values
 		 */
-		public static final Integer[] size = new Integer[]{1, 3, 5, 10, 20, 25, 30};
+		public static final Integer[] SIZE = {1, 3, 5, 10, 20, 25, 30};
+		
+	}
+	
+	/**
+	 * History Data
+	 */
+	public static final class HData {
+		
+		/**
+		 * History File Location
+		 */
+		public static final String LOC = "history.ibqb";
+		
+		/**
+		 * Date Format
+		 */
+		public static final String FORM = "dd-MM-yyyy HH:mm:ss";
 		
 	}
 }
