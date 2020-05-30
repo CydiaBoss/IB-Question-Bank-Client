@@ -9,7 +9,6 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EventObject;
 
 import javax.swing.JButton;
 import java.awt.BorderLayout;
@@ -25,6 +24,7 @@ import com.ib.quest.gui.questions.BasicQuestion;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.BevelBorder;
+import javax.swing.table.DefaultTableModel;
 
 import com.ib.quest.Constants;
 
@@ -61,7 +61,20 @@ public class Selector {
 	
 	// JPanels
 	private JPanel subj, topic, quest, ran;
+	
+	// Hierarchy of Subtopics
+	private String curSubj, curTopic;
 
+	/**
+	 * Gets the Main Frame
+	 * 
+	 * @return
+	 * The mainframe
+	 */
+	public JFrame getMain() {
+		return main;
+	}
+	
 	/**
 	 * Create the application.
 	 */
@@ -169,7 +182,7 @@ public class Selector {
 		panel.setLayout(new GridLayout(0, 2, 10, 20));
 		
 		// Button Addition
-		// TODO Will have to update later as Math HL and Math SL will interfer  
+		// TODO Will have to update later as Math HL and Math SL will interfere  
 		for(HtmlAnchor a : ld.getDBs()) {
 			JButton bt = new JButton(Main.s.getLocal().get("main." + a.asText().trim().toLowerCase()));
 			bt.setIcon(new ImageIcon(Selector.class.getResource("/img/subj/" + a.asText().trim().toUpperCase().substring(0, 4) + ".png")));
@@ -189,6 +202,7 @@ public class Selector {
 	private synchronized void topicSelection(HtmlAnchor anc) {
 		// Load the new 
 		ld.parseDatabase(anc);
+		curSubj = anc.asText().trim();
 		// Create New Panel
 		topic = new JPanel();
 		topic.setLayout(new BorderLayout(0, 10));
@@ -238,6 +252,7 @@ public class Selector {
 			}
 			// Gen
 			quesSelection(list.getSelectedIndex());
+			curTopic = list.getSelectedValue().trim();
 		});
 		
 		Component verticalStrut = Box.createVerticalStrut(40);
@@ -272,28 +287,66 @@ public class Selector {
 		panel.setLayout(new GridLayout(0, 1, 0, 0));
 		
 		// Create the 2D Array from HashMap
-		String[] titles = {Main.s.getLocal().get("quest.sel.id"), Main.s.getLocal().get("quest.sel.qu")};
-		String[][] data = new String[ld.getQues().size()][2];
+		// TODO add offline selection feature
+		String[] titles = {Main.s.getLocal().get("quest.sel.id"), Main.s.getLocal().get("quest.sel.qu"), Main.s.getLocal().get("set.connect.off")};
+
+		// Offline
+		if(ld.getOffBuild() == null) 
+			titles = new String[]{Main.s.getLocal().get("quest.sel.id"), Main.s.getLocal().get("quest.sel.qu")};
 		
+		Object[][] data = new Object[ld.getQues().size()][(ld.getOffBuild() != null)? 3 : 2];
+		
+		// Processing
 		int i = 0;
 		
 		for(String s : ld.getQues().keySet()) {
 			data[i][0] = s;
 			data[i][1] = ld.getQues().get(s).asText();
+			if(ld.getOffBuild() != null)
+				data[i][2] = ld.getOffBuild().alrdyOff(curSubj, s);
 			i++;
 		}
 		
-		JTable tab = new JTable(data, titles) {
-			private static final long serialVersionUID = 592523610055291313L;
-
+		DefaultTableModel tm = new DefaultTableModel(data, titles) {
+			
+			private static final long serialVersionUID = 6921360965179133013L;
+			
 			/**
-			 * Disables Editing
+			 * Only the cell with the boolean is editable
 			 */
 			@Override
-			public boolean editCellAt(int row, int column, EventObject e) {
-             	return false;
-          	}
+			public boolean isCellEditable(int row, int column) {
+				return column == 2;
+			}
+			
+			/**
+			 * Indicates that only the 3rd (index 2 column) column is boolean
+			 */
+			@Override
+			public Class<?> getColumnClass(int colIndex) {
+				if(colIndex == 2)
+					return Boolean.class;
+				return String.class;
+			}
+			
+			/**
+			 * Adds a sort of listener thing here (Offline)
+			 */
+			@Override
+			public synchronized void setValueAt(Object aValue, int row, int column) {
+				if(aValue instanceof Boolean && column == 2) {
+					super.setValueAt(aValue, row, column);
+					ld.loadQParts((String) data[row][0]);
+					// Adds or removes a entry
+					if((boolean) aValue) {
+						ld.getOffBuild().addQuest(curSubj, curTopic, (String) data[row][0], ld.getQParts());
+					}else
+						ld.getOffBuild().removeQuest(curSubj, curTopic, (String) data[row][0], ld.getQParts());
+				}
+			}
 		};
+		
+		JTable tab = new JTable(tm);
 		// Customize Table
 		tab.setShowVerticalLines(false);
 		tab.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -304,6 +357,10 @@ public class Selector {
 		tab.getTableHeader().setReorderingAllowed(false);
 		tab.getColumnModel().getColumn(0).setMinWidth(115);
 		tab.getColumnModel().getColumn(0).setMaxWidth(125);
+		if(ld.getOffBuild() != null) {
+			tab.getColumnModel().getColumn(2).setMinWidth(35);
+			tab.getColumnModel().getColumn(2).setMaxWidth(45);
+		}
 		// Default Disabled
 		tab.setEnabled(false);
 		

@@ -13,6 +13,9 @@ main.physics=La physique
 
 set=Les paramètres
 set.lang=Langue
+set.connect=Connexion
+set.connect.off=Haut ligne
+set.connect.on=En ligne
 
 hist=La historique
 hist.date=Date
@@ -39,6 +42,7 @@ ran.intro=%d Questions aléatoires
 ran.count=Question %1$d de %2$d
 
 offline=Changé du mode hors ligne
+online=Changé du mode en ligne
 
 error=Erreur
 error.in=Une erreur interne est décelé

@@ -40,7 +40,9 @@ public class Constants {
 		@Deprecated
 		private static final URL IBONEXP() {
 			try {
-				return new URL("https://www.ibdocuments.com/IB%20QUESTIONBANKS/4.%20Fourth%20Edition");
+//				return new URL("https://www.ibdocuments.com/IB%20QUESTIONBANKS/4.%20Fourth%20Edition");
+				// TODO Temp offline server acts as offical server
+				return new File("test/main.html").toURI().toURL();
 			} catch (MalformedURLException e) {
 				Error.throwError(Main.s.getLocal().get("error.in"), true);
 				return null;
@@ -56,7 +58,7 @@ public class Constants {
 		@Deprecated
 		private static final URL IBOFFEXP() {
 			try {
-				return new File("test/main.html").toURI().toURL();
+				return new File("offline/main.html").toURI().toURL();
 			} catch (MalformedURLException e) {
 				Error.throwError(Main.s.getLocal().get("error.in"), true);
 				return null;
@@ -90,6 +92,34 @@ public class Constants {
 		 * Date Format
 		 */
 		public static final String FORM = "dd-MM-yyyy HH:mm:ss";
+		
+	}
+	
+	/**
+	 * Offline Data
+	 */
+	public static final class OffData {
+		
+		/**
+		 * Directory
+		 */
+		public static final String DIR = "offline";
+		
+		/**
+		 * Offline Main
+		 */
+		public static final URL OFF = OFFEXP();
+		
+		// Used to handle the exception
+		@Deprecated
+		private static final URL OFFEXP() {
+			try {
+				return new File(DIR + "/main.html").toURI().toURL();
+			} catch (MalformedURLException e) {
+				Error.throwError(Main.s.getLocal().get("error.in"), true);
+				return null;
+			}
+		}
 		
 	}
 }

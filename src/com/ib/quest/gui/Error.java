@@ -2,14 +2,16 @@ package com.ib.quest.gui;
 
 import java.awt.BorderLayout;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import com.ib.quest.Main;
 
 import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.Component;
+import java.awt.Dialog;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
@@ -22,6 +24,8 @@ import javax.swing.SwingUtilities;
 
 /**
  * Error Framework
+ * 
+ * TODO Rework Error System
  * 
  * @author Andrew Wang
  * @version 1.0.4.7
@@ -52,16 +56,38 @@ public class Error extends JDialog {
 	 * Create the frame to display the error message
 	 */
 	private Error(String txt, boolean crash) {
-		super((JFrame) null, Main.s.getLocal().get("error"), crash);
+		super(Main.sel.getMain(), Main.s.getLocal().get("error"), Dialog.ModalityType.APPLICATION_MODAL);
 		setAlwaysOnTop(true);
-		setTitle(Main.s.getLocal().get("error"));
 		setResizable(false);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Error.class.getResource("/img/IBRRI.png")));
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		// Crash if required on close
+		addWindowListener(new WindowListener() {
 
-		if(crash)
-			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		else
-			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			@Override
+			public void windowOpened(WindowEvent e) {}
+
+			@Override
+			public void windowClosing(WindowEvent e) {}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+				if(crash)
+					System.exit(-1);
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e) {}
+
+			@Override
+			public void windowDeiconified(WindowEvent e) {}
+
+			@Override
+			public void windowActivated(WindowEvent e) {}
+
+			@Override
+			public void windowDeactivated(WindowEvent e) {}
+		});
 		// Spawns the JFrame in the middle of the screen
 		setLocationRelativeTo(null);
 		setSize(350, 150);

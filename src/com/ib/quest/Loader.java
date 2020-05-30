@@ -32,6 +32,9 @@ public class Loader {
 	private WebClient c;
 	private HtmlPage pg;
 	
+	// Offline
+	private OfflineBuilder o = null;
+	
 	/**
 	 * Creates the Loader Object
 	 */
@@ -52,7 +55,12 @@ public class Loader {
 		c.getOptions().setThrowExceptionOnScriptError(false);
 		// Get Online Page
 		try {
-			pg = c.getPage(Constants.Database.IBDBON);
+			if(Main.s.getSetting().get("connect").equals("0")) {
+				pg = c.getPage(Constants.Database.IBDBON);
+				// Load OfflineBuilder
+				o = new OfflineBuilder();
+			}else
+				offline();
 		// Switch to Offline
 		}catch (FailingHttpStatusCodeException | IOException e) {
 			Error.throwError(Main.s.getLocal().get("error.in") + " " + Main.s.getLocal().get("offline"), false);
@@ -66,6 +74,8 @@ public class Loader {
 	 * Switch to Offline
 	 */
 	public void offline() {
+		// Change Settings
+		Main.s.changeSetting("connect", "1", null);
 		// Try for Offline
 		try {
 			pg = c.getPage(Constants.Database.IBDBOFF);
@@ -73,6 +83,13 @@ public class Loader {
 		} catch (FailingHttpStatusCodeException | IOException e1) {
 			Error.throwError(Main.s.getLocal().get("error.off.missing"), true);
 		}
+	}
+	
+	/**
+	 * Get Offline Handler
+	 */
+	public OfflineBuilder getOffBuild() {
+		return o;
 	}
 	
 	//- Links to the Subject Topics-//
@@ -105,7 +122,9 @@ public class Loader {
 		}
 		// Offline Corruption
 		if(div == null) {
-			Error.throwError(Main.s.getLocal().get("error.off.corrupt"), true);
+			Error.throwError(Main.s.getLocal().get("error.off.missing") + " " + Main.s.getLocal().get("online"), true);
+			Main.s.changeSetting("connect", "0", null);
+			return;
 		}
 		// Copy the Links down
 		for(HtmlElement a : div.getHtmlElementDescendants()) {

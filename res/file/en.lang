@@ -13,6 +13,9 @@ main.physics=Physics
 
 set=Settings
 set.lang=Language
+set.connect=Connection
+set.connect.off=Offline
+set.connect.on=Online
 
 hist=History
 hist.date=Date
@@ -39,6 +42,7 @@ ran.intro=%d Random Question
 ran.count=Question %1$d of %2$d
 
 offline=Switching to offline mode.
+online=Switching to online mode.
 
 error=Error
 error.in=Internal Error Detected

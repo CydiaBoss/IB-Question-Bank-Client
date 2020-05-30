@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Scanner;
 
 import javax.swing.JPanel;
@@ -22,7 +23,9 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 
 import java.awt.Insets;
+
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JSlider;
 
 /**
  * Host all the necessary code for the settings
@@ -74,7 +77,6 @@ public class Setting{
 	
 	/**
 	 * Init. the setting manager
-	 * @wbp.parser.entryPoint
 	 */
 	public Setting() {
 		// Verify if custom defConfig exist
@@ -186,6 +188,28 @@ public class Setting{
 	}
 	
 	/**
+	 * Updates a value in settings
+	 * 
+	 * @param key
+	 * The Setting's Key
+	 * @param value
+	 * The New Value
+	 * @param main
+	 * The mainframe to dispose if reload is required (Make null if not needed)
+	 */
+	public void changeSetting(String key, String value, JFrame main) {
+		setting.replace(key, value);
+		updateSetting();
+		if(main != null) {
+			// Reload everything
+			new Thread(new Main()).start();
+			// Kill old stuff
+			main.setEnabled(false);
+			main.dispose();
+		}
+	}
+	
+	/**
 	 * Update the setting file
 	 */
 	private void updateSetting() {
@@ -199,14 +223,19 @@ public class Setting{
 		} catch (IOException e) {}
 	}
 	
+	private HashMap<String, Boolean> pendSet = new HashMap<>();
+	
 	/**
 	 * Creates The JPanel that hosts the setting panel
+	 * 
 	 * @param main
 	 * the mainframe
 	 * @param pre
 	 * the previous panel
+	 * 
 	 * @return
 	 * The Panel
+	 * 
 	 * @wbp.parser.entryPoint
 	 */
 	public JPanel init(JFrame main, JPanel pre) {
@@ -229,26 +258,25 @@ public class Setting{
 		panel.add(canBtn);
 		
 		JButton applyBtn = new JButton(Main.s.getLocal().get("gen.apply"));
+		applyBtn.setEnabled(false);
 		panel.add(applyBtn);
 		
 		JPanel panel_1 = new JPanel();
-		set.add(panel_1, BorderLayout.CENTER);
+		set.add(panel_1, BorderLayout.NORTH);
 		GridBagLayout gbl_panel_1 = new GridBagLayout();
 		gbl_panel_1.columnWidths = new int[]{0, 0, 0};
-		gbl_panel_1.rowHeights = new int[]{0, 0};
+		gbl_panel_1.rowHeights = new int[]{0, 0, 0};
 		gbl_panel_1.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
-		gbl_panel_1.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+		gbl_panel_1.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
 		panel_1.setLayout(gbl_panel_1);
 		
 		JLabel langLbl = new JLabel(Main.s.getLocal().get("set.lang") + ": ");
 		GridBagConstraints gbc_langLbl = new GridBagConstraints();
-		gbc_langLbl.insets = new Insets(0, 0, 0, 5);
+		gbc_langLbl.insets = new Insets(0, 0, 5, 5);
 		gbc_langLbl.anchor = GridBagConstraints.EAST;
 		gbc_langLbl.gridx = 0;
 		gbc_langLbl.gridy = 0;
 		panel_1.add(langLbl, gbc_langLbl);
-		
-		// TODO Get internal lang files.
 		
 		// Valid Languages
 		String[] langName = internal.get("regLang").split(";");
@@ -258,15 +286,74 @@ public class Setting{
 		JComboBox<String> comboBox = new JComboBox<>();
 		comboBox.setModel(new DefaultComboBoxModel<String>(langName));
 		comboBox.setSelectedItem(setting.get("lang").toUpperCase());
+		pendSet.put("lang", false);
+		// Looks for change
+		comboBox.addActionListener(e -> {
+			// Determine whether the Apply button should be enabled
+			if(((String) comboBox.getSelectedItem()).equals(setting.get("lang").toUpperCase())) {
+				pendSet.put("lang", false);
+				for(boolean b : pendSet.values())
+					if(b)
+						return;
+				applyBtn.setEnabled(false);
+			}else{
+				pendSet.put("lang", true);
+				applyBtn.setEnabled(true);
+			}
+		});
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox.insets = new Insets(0, 0, 5, 0);
 		gbc_comboBox.gridx = 1;
 		gbc_comboBox.gridy = 0;
 		panel_1.add(comboBox, gbc_comboBox);
 		
+		JLabel connectLbl = new JLabel(Main.s.getLocal().get("set.connect") + ": ");
+		pendSet.put("connect", false);
+		GridBagConstraints gbc_connectLbl = new GridBagConstraints();
+		gbc_connectLbl.insets = new Insets(0, 0, 0, 5);
+		gbc_connectLbl.gridx = 0;
+		gbc_connectLbl.gridy = 1;
+		panel_1.add(connectLbl, gbc_connectLbl);
+		
+		JSlider slider = new JSlider();
+		slider.setMajorTickSpacing(1);
+		
+		// Setup Table
+		Hashtable<Integer, JLabel> lblTab = new Hashtable<Integer, JLabel>();
+		lblTab.put(0, new JLabel(Main.s.getLocal().get("set.connect.on")));
+		lblTab.put(1, new JLabel(Main.s.getLocal().get("set.connect.off")));
+		
+		slider.setLabelTable(lblTab);
+		slider.setValue(Integer.parseInt(setting.get("connect")));
+		slider.setPaintLabels(true);
+		slider.setPaintTicks(true);
+		slider.setMinorTickSpacing(1);
+		slider.setMinimum(0);
+		slider.setMaximum(1);
+		slider.addChangeListener(e -> {
+			if(slider.getValue() == Integer.parseInt(setting.get("connect"))) {
+				pendSet.put("connect", false);
+				for(boolean b : pendSet.values())
+					if(b)
+						return;
+				applyBtn.setEnabled(false);
+			}else{
+				pendSet.put("connect", true);
+				applyBtn.setEnabled(true);
+			}
+		});
+		GridBagConstraints gbc_slider = new GridBagConstraints();
+		gbc_slider.fill = GridBagConstraints.HORIZONTAL;
+		gbc_slider.gridx = 1;
+		gbc_slider.gridy = 1;
+		panel_1.add(slider, gbc_slider);
+		
 		applyBtn.addActionListener(e -> {
 			// Update Language
 			setting.replace("lang", ((String) comboBox.getSelectedItem()).toLowerCase());
+			// Update Connection Status
+			setting.replace("connect", "" + slider.getValue());
 			// Update file
 			updateSetting();
 			// Reload everything

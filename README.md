@@ -10,6 +10,7 @@ An application to host the IB past paper questions from the IB document database
   <li>Randomized Questions</li>
   <li>Localization: French</li>
   <li>Past History</li>
+  <li>Offline Mode</li>
 </ul>
 
 # Coming Soon
