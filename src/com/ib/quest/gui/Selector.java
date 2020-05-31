@@ -104,7 +104,8 @@ public class Selector {
 	 */
 	private void initialize() {
 		// Initialize
-		main = new JFrame(Main.s.getLocal().get("gen.title"));
+		main = Main.m;
+		main.setTitle(Main.s.getLocal().get("gen.title"));
 		main.setIconImage(Toolkit.getDefaultToolkit().getImage(Selector.class.getResource("/img/IBRRI.png")));
 		main.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		main.setResizable(false);
@@ -247,7 +248,7 @@ public class Selector {
 		nextBtn.addActionListener(e -> {
 			// Throw if No Select
 			if(list.getSelectedIndex() < 0) {
-				Error.throwError(Main.s.getLocal().get("error.top.sel"), false);
+				Main.throwError(Main.s.getLocal().get("error.top.sel"), false);
 				return;
 			}
 			// Gen
@@ -451,7 +452,7 @@ public class Selector {
 		stBtn.addActionListener(e -> {
 			if(selRdBtn.isSelected()) {
 				if(tab.getSelectedRow() < 0) {
-					Error.throwError(Main.s.getLocal().get("error.quest.sel"), false);
+					Main.throwError(Main.s.getLocal().get("error.quest.sel"), false);
 					return;
 				}
 				main.getContentPane().remove(quest);

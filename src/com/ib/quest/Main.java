@@ -1,11 +1,12 @@
 package com.ib.quest;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import com.ib.quest.gui.Selector;
 import com.ib.quest.gui.Setting;
-import com.ib.quest.gui.Error;
 import com.ib.quest.gui.History;
 
 /**
@@ -37,6 +38,11 @@ public class Main implements Runnable{
 	public static History h;
 	
 	/**
+	 * Mainframe
+	 */
+	public static JFrame m = new JFrame();
+	
+	/**
 	 * Main 
 	 */
 	public static void main(String[] args) {
@@ -45,10 +51,26 @@ public class Main implements Runnable{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
-			Error.throwError(s.getLocal().get("error.in"), true);
+			throwError(s.getLocal().get("error.in"), true);
 		}
 		// Launches a Thread
 		new Thread(new Main()).start();
+	}
+	
+	/**
+	 * Throws a error
+	 * 
+	 * @param parent
+	 * The parent frame
+	 * @param msg
+	 * The message
+	 * @param fatal
+	 * If the error is fatal
+	 */
+	public static void throwError(String msg, boolean fatal) {
+		JOptionPane.showMessageDialog(m, msg, s.getLocal().get("error"), (fatal)? JOptionPane.ERROR_MESSAGE : JOptionPane.WARNING_MESSAGE);
+		if(fatal)
+			System.exit(-1);
 	}
 
 	/**

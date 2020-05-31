@@ -18,8 +18,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlParagraph;
 import com.gargoylesoftware.htmlunit.html.HtmlTableBody;
 
-import com.ib.quest.gui.Error;
-
 /**
  * The Loader will Load the Questions off the website or the offline database
  * 
@@ -63,7 +61,7 @@ public class Loader {
 				offline();
 		// Switch to Offline
 		}catch (FailingHttpStatusCodeException | IOException e) {
-			Error.throwError(Main.s.getLocal().get("error.in") + " " + Main.s.getLocal().get("offline"), false);
+			Main.throwError(Main.s.getLocal().get("error.in") + " " + Main.s.getLocal().get("offline"), false);
 			offline();
 		}
 		// Loads the Links
@@ -81,7 +79,7 @@ public class Loader {
 			pg = c.getPage(Constants.Database.IBDBOFF);
 		// Nothing works
 		} catch (FailingHttpStatusCodeException | IOException e1) {
-			Error.throwError(Main.s.getLocal().get("error.off.missing"), true);
+			Main.throwError(Main.s.getLocal().get("error.off.missing"), true);
 		}
 	}
 	
@@ -116,14 +114,14 @@ public class Loader {
 		// Error 403 Forbidden (DMCA Takedown)
 		// Auto switch to offline
 		if(div == null) {
-			Error.throwError(Main.s.getLocal().get("error.dmca") + " " + Main.s.getLocal().get("offline"), false);
+			Main.throwError(Main.s.getLocal().get("error.dmca") + " " + Main.s.getLocal().get("offline"), false);
 			offline();
 			div = pg.getFirstByXPath("//div[@class='row services']");
 		}
 		// Offline Corruption
 		if(div == null) {
-			Error.throwError(Main.s.getLocal().get("error.off.missing") + " " + Main.s.getLocal().get("online"), true);
 			Main.s.changeSetting("connect", "0", null);
+			Main.throwError(Main.s.getLocal().get("error.off.missing") + " " + Main.s.getLocal().get("online"), true);
 			return;
 		}
 		// Copy the Links down
@@ -162,12 +160,12 @@ public class Loader {
 		HtmlPage dbPage = null;
 		// Verify Anchor
 		if(!links.contains(a))
-			Error.throwError(Main.s.getLocal().get("error.in"), true);
+			Main.throwError(Main.s.getLocal().get("error.in"), true);
 		// Proceed
 		try {
 			dbPage = a.click();
 		} catch (IOException e) {
-			Error.throwError(Main.s.getLocal().get("error.link"), true);
+			Main.throwError(Main.s.getLocal().get("error.link"), true);
 		}
 		// Grabs all the topics
 		HtmlTableBody body = dbPage.getFirstByXPath("//table[@class='table']/tbody");
@@ -208,12 +206,12 @@ public class Loader {
 		HtmlPage quests = null;
 		// Verify Anchor
 		if(!subj.contains(a))
-			Error.throwError(Main.s.getLocal().get("error.in"), true);
+			Main.throwError(Main.s.getLocal().get("error.in"), true);
 		// Continue
 		try {
 			quests = a.click();
 		} catch (IOException e) {
-			Error.throwError(Main.s.getLocal().get("error.link"), true);
+			Main.throwError(Main.s.getLocal().get("error.link"), true);
 		}
 		// Detection
 		List<HtmlElement> rawQues = quests.getByXPath("//div[@class='module' and h3='Directly related questions']/ul/li");
@@ -410,11 +408,11 @@ public class Loader {
 		try {
 			questPg = questions.get(ID).click();
 		} catch (IOException e) {
-			Error.throwError(Main.s.getLocal().get("error.link"), true);
+			Main.throwError(Main.s.getLocal().get("error.link"), true);
 		}
 		// Verify
 		if(questPg == null)
-			Error.throwError(Main.s.getLocal().get("error.in"), true);
+			Main.throwError(Main.s.getLocal().get("error.in"), true);
 		// Iterate through descendants to find data
 		boolean isQuest = false,
 				isAns = false;

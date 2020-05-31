@@ -1,7 +1,5 @@
 package com.ib.quest;
 
-import com.ib.quest.gui.Error;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -44,7 +42,7 @@ public class Constants {
 				// TODO Temp offline server acts as offical server
 				return new File("test/main.html").toURI().toURL();
 			} catch (MalformedURLException e) {
-				Error.throwError(Main.s.getLocal().get("error.in"), true);
+				Main.throwError(Main.s.getLocal().get("error.in"), true);
 				return null;
 			}
 		}
@@ -60,7 +58,7 @@ public class Constants {
 			try {
 				return new File("offline/main.html").toURI().toURL();
 			} catch (MalformedURLException e) {
-				Error.throwError(Main.s.getLocal().get("error.in"), true);
+				Main.throwError(Main.s.getLocal().get("error.in"), true);
 				return null;
 			}
 		}
@@ -116,7 +114,7 @@ public class Constants {
 			try {
 				return new File(DIR + "/main.html").toURI().toURL();
 			} catch (MalformedURLException e) {
-				Error.throwError(Main.s.getLocal().get("error.in"), true);
+				Main.throwError(Main.s.getLocal().get("error.in"), true);
 				return null;
 			}
 		}

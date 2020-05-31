@@ -112,7 +112,7 @@ public class Setting{
 			try {
 				setting.put(ln[0], ln[1]);
 			}catch(ArrayIndexOutOfBoundsException e) {
-				Error.throwError(Main.s.getLocal().get("error.setting"), true);
+				Main.throwError(Main.s.getLocal().get("error.setting"), true);
 			}
 		}
 		in.close();
@@ -138,7 +138,7 @@ public class Setting{
 			try {
 				setting.put(ln[0], ln[1]);
 			}catch(ArrayIndexOutOfBoundsException e) {
-				Error.throwError(Main.s.getLocal().get("error.setting"), true);
+				Main.throwError(Main.s.getLocal().get("error.setting"), true);
 			}
 		}
 		rd.close();
@@ -159,7 +159,7 @@ public class Setting{
 			try {
 				internal.put(ln[0], ln[1]);
 			}catch(ArrayIndexOutOfBoundsException e) {
-				Error.throwError(Main.s.getLocal().get("error.setting"), true);
+				Main.throwError(Main.s.getLocal().get("error.setting"), true);
 			}
 		}
 		rd.close();
@@ -181,7 +181,7 @@ public class Setting{
 				local.put(ln[0], ln[1]);
 			}catch(ArrayIndexOutOfBoundsException e) {
 				// Oversight: If Lang failed to read, prog dont know what error.in is
-				Error.throwError(Main.s.getLocal().get("error.in"), true);
+				Main.throwError(Main.s.getLocal().get("error.in"), true);
 			}
 		}
 		rd.close();

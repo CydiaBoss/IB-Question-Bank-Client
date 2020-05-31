@@ -83,7 +83,7 @@ public class History {
 		try {
 			rd = new Scanner(histFile, "UTF-8");
 		} catch (FileNotFoundException e) {
-			Error.throwError(Main.s.getLocal().get("error.in"), true);
+			Main.throwError(Main.s.getLocal().get("error.in"), true);
 		}
 		// Scans stuff
 		while(rd.hasNextLine()) {
