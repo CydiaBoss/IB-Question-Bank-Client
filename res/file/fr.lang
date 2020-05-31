@@ -7,6 +7,7 @@ gen.submit=Soumets
 gen.quit=Annuler
 gen.apply=Appliquer
 gen.reset=Remettre
+gen.finish=Terminer
 
 main.chemistry=La chimie
 main.physics=La physique

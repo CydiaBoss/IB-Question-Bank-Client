@@ -23,6 +23,8 @@ import java.awt.Component;
 import java.awt.CardLayout;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 
 /**
  * This is a JPanel for a basic question
@@ -49,6 +51,7 @@ public class BasicQuestion extends JPanel {
 	private JPanel displayPanel = new JPanel();
 	private HashMap<String, JPanel> questSlide = new HashMap<>();
 	private HashMap<String, JTextArea> questSlideAns = new HashMap<>();
+	private HashMap<String, JComboBox<String>> questSlideMark = new HashMap<>();
 	
 	/* Submitted */ 
 	private boolean submit = false;
@@ -58,6 +61,16 @@ public class BasicQuestion extends JPanel {
 	 */
 	public int getTotal() {
 		return total;
+	}
+	
+	/**
+	 * Get Marks Earned
+	 */
+	public int getEarn() {
+		int earn = 0;
+		for(JComboBox<String> mks : questSlideMark.values()) 
+			earn += Integer.parseInt(((String) mks.getSelectedItem()).replace("[", "").replace("]", ""));
+		return earn;
 	}
 	
 	/**
@@ -100,12 +113,12 @@ public class BasicQuestion extends JPanel {
 		JPanel panel_1 = new JPanel();
 		add(panel_1, BorderLayout.SOUTH);
 		panel_1.setLayout(new GridLayout(1, 0, 80, 0));
+
+		// A back button
+		JButton quitBtn = new JButton(Main.s.getLocal().get("gen.quit"));
 		
 		// If it is random feature, do not put a quit button
 		if(m != null && pre != null) {
-		
-			// A back button
-			JButton quitBtn = new JButton(Main.s.getLocal().get("gen.quit"));
 			quitBtn.addActionListener(e -> {
 				m.getContentPane().remove(this);
 				m.getContentPane().add(pre, BorderLayout.CENTER);
@@ -189,7 +202,7 @@ public class BasicQuestion extends JPanel {
 			bacBtn.addActionListener(e -> {
 				c.previous(displayPanel);
 				curSlide--;
-				if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit")))
+				if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit")) || nextBtn.getText().equals(Main.s.getLocal().get("gen.finish")))
 					nextBtn.setText(Main.s.getLocal().get("gen.next"));
 				if(curSlide == 1)
 					bacBtn.setEnabled(false);
@@ -215,28 +228,31 @@ public class BasicQuestion extends JPanel {
 					if(m == null && pre == null)
 						nextBtn.setEnabled(false);
 					else {
-						nextBtn.setText(Main.s.getLocal().get("gen.submit"));
-						if(submit)
-							nextBtn.setEnabled(false);
+						if(!submit)
+							nextBtn.setText(Main.s.getLocal().get("gen.submit"));
+						else
+							nextBtn.setText(Main.s.getLocal().get("gen.finish"));
 					}
 				}
 			// If Btn is in submit mode
-			}else{
+			}else if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit"))) {
 				submit = true;
-				int mks = checkAns();
-				// Adds to history
-				Main.h.addEntry(LocalDateTime.now(), ID, mks, total);
+				checkAns();
 				c.first(displayPanel);
 				curSlide = 1;
 				bacBtn.setEnabled(false);
 				// Change to Next if need
 				if(questions.size() > 1)
 					nextBtn.setText(Main.s.getLocal().get("gen.next"));
-				// Disable Submit button
-				if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit"))) 
-					nextBtn.setEnabled(false);
+				// Change to Finish otherwise
+				else
+					nextBtn.setText(Main.s.getLocal().get("gen.finish"));
 				m.repaint();
 				m.revalidate();
+			// If Btn is in finish mode
+			}else{
+				Main.h.addEntry(LocalDateTime.now(), ID, getEarn(), total);
+				quitBtn.doClick();
 			}
 		});
 		
@@ -268,9 +284,7 @@ public class BasicQuestion extends JPanel {
 	 * The total grade
 	 * @wbp.parser.entryPoint
 	 */
-	public int checkAns() {
-		
-		int totalMrk = 0;
+	public void checkAns() {
 		
 		// Adds answers to all Panels
 		for(Question a : answers) {
@@ -313,19 +327,32 @@ public class BasicQuestion extends JPanel {
 			realAnsLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_1.add(realAnsLbl, BorderLayout.CENTER);
 			
+			JPanel panel_2 = new JPanel();
+			panel_1.add(panel_2, BorderLayout.SOUTH);
+			panel_2.setLayout(new BorderLayout(0, 0));
+			
+			// Generate all marks
+			String[] marks = new String[qu.getMark() + 1];
+			for(int i = 0; i < marks.length; i++)
+				marks[i] = "[" + i + "]";
+			
+			JComboBox<String> comboBox = new JComboBox<>();
+			comboBox.setModel(new DefaultComboBoxModel<String>(marks));
+			comboBox.setSelectedIndex(qu.getMark());
+			questSlideMark.put(a.getLabel(), comboBox);
+			panel_2.add(comboBox, BorderLayout.EAST);
+			
 			// Mark some sort of mark calculating system
-			int ansRew = gradeAns(questSlideAns.get(a.getLabel()).getText(), a.getText(), qu.getMark());
-			JLabel markLbl = new JLabel(Main.s.getLocal().get("quest.rew") + ": [" + ansRew + "]");
-			totalMrk += ansRew;
+			
+			// TODO Change answer correction
+			JLabel markLbl = new JLabel(Main.s.getLocal().get("quest.rew") + ": ");
 			markLbl.setHorizontalAlignment(SwingConstants.TRAILING);
 			markLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
-			panel_1.add(markLbl, BorderLayout.SOUTH);
+			panel_2.add(markLbl, BorderLayout.CENTER);
 			
 			// Add Back
 			questSlide.get(a.getLabel()).add(ansSlide, BorderLayout.CENTER);
 		}
-		
-		return totalMrk;
 	}
 	
 	/**
@@ -344,31 +371,5 @@ public class BasicQuestion extends JPanel {
 			else
 				answers.add(qP);
 				
-	}
-	
-	/**
-	 * Grades the answer
-	 * 
-	 * @param urRep
-	 * The response given
-	 * @param ans
-	 * The correct answer
-	 * @param value
-	 * Answer worth
-	 * 
-	 * @return
-	 * Amount rewarded
-	 */
-	private int gradeAns(String urRep, String ans, int value) {
-		// If you get the exact answer
-		// You should get full marks
-		if(ans.equals(urRep))
-			return value;
-		// If only one mark
-		// Must contain the answer at least
-		if(value == 1)
-			return (urRep.contains(ans))? value : 0;
-		
-		return value;
 	}
 }

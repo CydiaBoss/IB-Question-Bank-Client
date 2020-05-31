@@ -7,6 +7,7 @@ gen.submit=Submit
 gen.quit=Cancel
 gen.apply=Apply
 gen.reset=Reset
+gen.finish=Finish
 
 main.chemistry=Chemistry
 main.physics=Physics

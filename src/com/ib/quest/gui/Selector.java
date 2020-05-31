@@ -561,7 +561,7 @@ public class Selector {
 				c.previous(panel);
 				curSlide--;
 				curQLbl.setText(String.format(Main.s.getLocal().get("ran.count"), curSlide, amt));
-				if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit")))
+				if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit")) || nextBtn.getText().equals(Main.s.getLocal().get("gen.finish")))
 					nextBtn.setText(Main.s.getLocal().get("gen.next"));
 				if(curSlide == 1)
 					bacBtn.setEnabled(false);
@@ -581,30 +581,37 @@ public class Selector {
 				curQLbl.setText(String.format(Main.s.getLocal().get("ran.count"), curSlide, amt));
 				bacBtn.setEnabled(true);
 				if(curSlide == amt) {
-					nextBtn.setText(Main.s.getLocal().get("gen.submit"));
-					if(submit)
-						nextBtn.setEnabled(false);
+					if(!submit)
+						nextBtn.setText(Main.s.getLocal().get("gen.submit"));
+					else
+						nextBtn.setText(Main.s.getLocal().get("gen.finish"));
 				}
 			// Reveal Answer and Move back to slide 1
-			}else{
+			}else if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit"))) {
 				submit = true;
-				int total = 0,
-					mks = 0;
-				for(BasicQuestion bQ : selQ) {
-					mks += bQ.checkAns();
-					total += bQ.getTotal();
-				}
+				// Generate Answer Pages
+				for(BasicQuestion bQ : selQ)
+					bQ.checkAns();
 				c.first(panel);
 				curSlide = 1;
 				// Prevent Btn from being named next even tho there is only 1 question
 				if(amt != 1)
 					nextBtn.setText(Main.s.getLocal().get("gen.next"));
 				else 
-					nextBtn.setEnabled(false);
+					nextBtn.setText(Main.s.getLocal().get("gen.finish"));
 				curQLbl.setText(String.format(Main.s.getLocal().get("ran.count"), curSlide, amt));
 				bacBtn.setEnabled(false);
-				Main.h.addEntry(LocalDateTime.now(), "Q" + amt + ".RND", mks, total);
 				reload();
+			}else{
+				// Calculate Marks
+				int total = 0,
+					mks = 0;
+				for(BasicQuestion bQ : selQ) {
+					mks += bQ.getEarn();
+					total += bQ.getTotal();
+				}
+				Main.h.addEntry(LocalDateTime.now(), "Q" + amt + ".RND", mks, total);
+				quitBtn.doClick();
 			}
 		});
 		
