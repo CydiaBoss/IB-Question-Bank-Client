@@ -69,7 +69,7 @@ public class OfflineBuilder {
 		// Creates Subject Directory
 		createDir(subjDir);
 		// Injects topics things
-		injFile(subject, "topic", "<a style='s' href='./" + top.getName() + "'>\n"
+		injFile(subject, "topic", "<a href='./" + top.getName() + "'>\n"
 									+ topic + "\n"
 								+ "</a>");
 		// Inject questions again
@@ -150,7 +150,7 @@ public class OfflineBuilder {
 		else
 			top.delete();
 		// Check the subj file to remove 
-		extFile(subject, "<a style='s' href='./" + top.getName() + "'>\n"
+		extFile(subject, "<a href='./" + top.getName() + "'>\n"
 						   + topic + "\n"
 					   + "</a>");
 		// Stop if file is empty

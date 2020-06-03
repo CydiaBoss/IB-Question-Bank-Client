@@ -4,6 +4,7 @@ import com.ib.quest.Loader;
 import com.ib.quest.Loader.QType;
 import com.ib.quest.Loader.Question;
 import com.ib.quest.Main;
+import com.ib.quest.Parser;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -23,6 +24,7 @@ import java.awt.Component;
 import java.awt.CardLayout;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 
@@ -106,7 +108,7 @@ public class BasicQuestion extends JPanel {
 		idLbl.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel.add(idLbl);
 		
-		JLabel specLbl = new JLabel("<html>" + txt + "</html>");
+		JLabel specLbl = new JLabel("<html>" + Parser.parseFormat(txt) + "</html>");
 		specLbl.setFont(new Font("Tahoma", Font.BOLD, 12));
 		panel.add(specLbl);
 		
@@ -153,7 +155,7 @@ public class BasicQuestion extends JPanel {
 			labelLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_4.add(labelLbl, BorderLayout.WEST);
 			
-			JLabel quesLbl = new JLabel("<html>" + q.getText() + "</html>");
+			JLabel quesLbl = new JLabel("<html>" + Parser.parseFormat(q.getText()) + "</html>");
 			quesLbl.setVerticalAlignment(SwingConstants.TOP);
 			quesLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_4.add(quesLbl, BorderLayout.CENTER);
@@ -322,7 +324,7 @@ public class BasicQuestion extends JPanel {
 			ansLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_1.add(ansLbl, BorderLayout.NORTH);
 			
-			JLabel realAnsLbl = new JLabel("<html>" + a.getText() + "</html>");
+			JLabel realAnsLbl = new JLabel("<html>" + Parser.parseFormat(a.getText()) + "</html>");
 			realAnsLbl.setVerticalAlignment(SwingConstants.TOP);
 			realAnsLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_1.add(realAnsLbl, BorderLayout.CENTER);

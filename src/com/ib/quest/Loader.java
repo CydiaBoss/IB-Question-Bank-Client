@@ -1,6 +1,7 @@
 package com.ib.quest;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,13 +11,13 @@ import org.apache.commons.logging.LogFactory;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlDivision;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlHeading2;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlParagraph;
-import com.gargoylesoftware.htmlunit.html.HtmlTableBody;
 
 /**
  * The Loader will Load the Questions off the website or the offline database
@@ -47,7 +48,7 @@ public class Loader {
 		c.getOptions().setUseInsecureSSL(false);
 		c.getOptions().setCssEnabled(false);
 		c.getOptions().setAppletEnabled(false);
-		c.getOptions().setJavaScriptEnabled(false);
+		c.getOptions().setJavaScriptEnabled(true);
 		c.getOptions().setPrintContentOnFailingStatusCode(false);
 		c.getOptions().setThrowExceptionOnFailingStatusCode(false);
 		c.getOptions().setThrowExceptionOnScriptError(false);
@@ -76,7 +77,9 @@ public class Loader {
 		Main.s.changeSetting("connect", "1", null);
 		// Try for Offline
 		try {
-			pg = c.getPage(Constants.Database.IBDBOFF);
+			WebRequest req = new WebRequest(Constants.Database.IBDBOFF);
+			req.setCharset(StandardCharsets.UTF_8);
+			pg = c.getPage(req);
 		// Nothing works
 		} catch (FailingHttpStatusCodeException | IOException e1) {
 			Main.throwError(Main.s.getLocal().get("error.off.missing"), true);
@@ -114,15 +117,18 @@ public class Loader {
 		// Error 403 Forbidden (DMCA Takedown)
 		// Auto switch to offline
 		if(div == null) {
-			Main.throwError(Main.s.getLocal().get("error.dmca") + " " + Main.s.getLocal().get("offline"), false);
-			offline();
-			div = pg.getFirstByXPath("//div[@class='row services']");
-		}
-		// Offline Corruption
-		if(div == null) {
-			Main.s.changeSetting("connect", "0", null);
-			Main.throwError(Main.s.getLocal().get("error.off.missing") + " " + Main.s.getLocal().get("online"), true);
-			return;
+			// If div = null and setting is not offline, dmca error
+			if(Main.s.getSetting().get("connect").equals("0")) {
+				Main.throwError(Main.s.getLocal().get("error.dmca") + " " + Main.s.getLocal().get("offline"), false);
+				offline();
+				div = pg.getFirstByXPath("//div[@class='row services']");
+			}
+			// Offline Missing / Corruption if still div
+			if(div == null) {
+				Main.s.changeSetting("connect", "0", null);
+				Main.throwError(Main.s.getLocal().get("error.off.missing") + " " + Main.s.getLocal().get("online"), true);
+				return;
+			}
 		}
 		// Copy the Links down
 		for(HtmlElement a : div.getHtmlElementDescendants()) {
@@ -168,15 +174,9 @@ public class Loader {
 			Main.throwError(Main.s.getLocal().get("error.link"), true);
 		}
 		// Grabs all the topics
-		HtmlTableBody body = dbPage.getFirstByXPath("//table[@class='table']/tbody");
-		for(HtmlElement item : body.getHtmlElementDescendants()) {
-			// Ignores titles
-			if(item.getAttribute("style").equals(HtmlElement.ATTRIBUTE_NOT_DEFINED))
-				continue;
+		for(Object itemE : dbPage.getByXPath("//table[@class='table']/tbody/tr/td/a")) 
 			// Stores the Topics
-			// TODO Check if still compatible with online
-			subj.add((HtmlAnchor) item);
-		}
+			subj.add((HtmlAnchor) itemE);
 	}
 	
 	//- Questions -//
@@ -443,19 +443,39 @@ public class Loader {
 				}else{
 					List<HtmlParagraph> tList = e.getByXPath("p");
 					String q = "";
-					for(HtmlParagraph p : tList)
-						q += p.asText().trim();
-					qParts.add(new Question(q, 
-							((HtmlDivision) e.getFirstByXPath("div[@class='question_part_label']")).asText().trim(), 
-							((HtmlDivision) e.getFirstByXPath("div[@class='marks']")).asText().trim()));
+					for(HtmlParagraph p : tList) {
+						q += p.asXml().trim();
+					}
+					String lbl, mk;
+					// Try to get Label
+					try{
+						lbl = ((HtmlDivision) e.getFirstByXPath("div[@class='question_part_label']")).asText().trim();
+					}catch(NullPointerException e1) {
+						lbl = Constants.Database.LBL;
+					}
+					// Try to get Marks
+					try{
+						mk = ((HtmlDivision) e.getFirstByXPath("div[@class='marks']")).asText().trim();
+					}catch(NullPointerException e1) {
+						mk = Constants.Database.MK;
+					}
+					// Add Question
+					qParts.add(new Question(q, lbl, mk));
 				}
 			// Records Answers
 			else if(isAns) {
 				List<HtmlParagraph> tList = e.getByXPath("p");
 				String a = "";
 				for(HtmlParagraph p : tList)
-					a += p.asText().trim();
-				qParts.add(new Question(a, ((HtmlDivision) e.getFirstByXPath("div[@class='question_part_label']")).asText().trim()));
+					a += p.asXml().trim();
+				String lbl;
+				// Try to get Label
+				try{
+					lbl = ((HtmlDivision) e.getFirstByXPath("div[@class='question_part_label']")).asText().trim();
+				}catch(NullPointerException e1) {
+					lbl = Constants.Database.LBL;
+				}
+				qParts.add(new Question(a, lbl));
 			}
 		}
 	}

@@ -40,7 +40,7 @@ public class Main implements Runnable{
 	/**
 	 * Mainframe
 	 */
-	public static JFrame m = new JFrame();
+	public static JFrame m;
 	
 	/**
 	 * Main 
@@ -79,6 +79,7 @@ public class Main implements Runnable{
 	@Override
 	public void run() {
 		// Setup
+		m = new JFrame();
 		s = new Setting();
 		h = new History();
 		ld = new Loader();

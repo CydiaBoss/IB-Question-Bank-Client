@@ -185,8 +185,17 @@ public class Selector {
 		// Button Addition
 		// TODO Will have to update later as Math HL and Math SL will interfere  
 		for(HtmlAnchor a : ld.getDBs()) {
+			// Skip unavailable ones
+			if(a.asText().trim().contains("NOT YET AVAILABLE"))
+				continue;
 			JButton bt = new JButton(Main.s.getLocal().get("main." + a.asText().trim().toLowerCase()));
-			bt.setIcon(new ImageIcon(Selector.class.getResource("/img/subj/" + a.asText().trim().toUpperCase().substring(0, 4) + ".png")));
+			// Get Icon for databases
+			try {
+				bt.setIcon(new ImageIcon(Selector.class.getResource("/img/subj/" + a.asText().trim().toUpperCase().substring(0, 4) + ".png")));
+			}catch(NullPointerException e) {
+				bt.setText(a.asText().trim());
+				bt.setIcon(new ImageIcon(Selector.class.getResource("/img/subj/UNK.png")));
+			}
 			bt.addActionListener(e -> 
 				topicSelection(a)
 			);
