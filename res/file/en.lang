@@ -9,8 +9,14 @@ gen.apply=Apply
 gen.reset=Reset
 gen.finish=Finish
 
+main.biology=Biology
 main.chemistry=Chemistry
 main.physics=Physics
+main.further.mathematics.hl=Further Mathematics HL
+main.mathematics.hl=Mathematics HL
+main.mathematics.sl=Mathematics SL
+main.mathematical.studies=Mathematics Studies
+main.geography=Geography
 
 set=Settings
 set.lang=Language

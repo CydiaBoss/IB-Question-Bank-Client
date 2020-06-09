@@ -1,5 +1,7 @@
 package com.ib.quest;
 
+import java.io.File;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -16,6 +18,11 @@ import com.ib.quest.gui.History;
  * @version 1.0.4.7
  */
 public class Main implements Runnable{
+	
+	/**
+	 * Temporary File Directory
+	 */
+	public static final File TEMP = new File("temp");
 	
 	/**
 	 * The Loader
@@ -53,6 +60,9 @@ public class Main implements Runnable{
 				| UnsupportedLookAndFeelException e) {
 			throwError(s.getLocal().get("error.in"), true);
 		}
+		// Create TEMP Folder
+		TEMP.mkdir();
+		TEMP.deleteOnExit();
 		// Launches a Thread
 		new Thread(new Main()).start();
 	}

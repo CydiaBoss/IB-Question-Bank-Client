@@ -1,5 +1,6 @@
 package com.ib.quest.gui.questions;
 
+import com.ib.quest.Constants;
 import com.ib.quest.Loader;
 import com.ib.quest.Loader.QType;
 import com.ib.quest.Loader.Question;
@@ -10,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import javax.swing.Box;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.CardLayout;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
@@ -108,9 +111,7 @@ public class BasicQuestion extends JPanel {
 		idLbl.setFont(new Font("Tahoma", Font.BOLD, 14));
 		panel.add(idLbl);
 		
-		JLabel specLbl = new JLabel("<html>" + Parser.parseFormat(txt) + "</html>");
-		specLbl.setFont(new Font("Tahoma", Font.BOLD, 12));
-		panel.add(specLbl);
+		panel.add(Parser.parseTxt(txt, ID + "-Q"));
 		
 		JPanel panel_1 = new JPanel();
 		add(panel_1, BorderLayout.SOUTH);
@@ -131,10 +132,17 @@ public class BasicQuestion extends JPanel {
 		
 		}
 
-		add(displayPanel, BorderLayout.CENTER);
+		JScrollPane wrk = new JScrollPane(displayPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		displayPanel.setMaximumSize(new Dimension(Constants.Size.STAN_W - 60, 600));
+		displayPanel.setPreferredSize(new Dimension(0, 600));
+		wrk.setMaximumSize(new Dimension(Constants.Size.STAN_W - 40, 600));
+		wrk.setPreferredSize(new Dimension(0, 600));
+		wrk.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		add(wrk, BorderLayout.CENTER);
 		displayPanel.setLayout(c);
 		
 		/* Generate all Question Panel */
+		// TODO FIX THIS SOMEHOW WHAAAA
 		
 		for(Question q : questions) {
 			
@@ -155,10 +163,7 @@ public class BasicQuestion extends JPanel {
 			labelLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_4.add(labelLbl, BorderLayout.WEST);
 			
-			JLabel quesLbl = new JLabel("<html>" + Parser.parseFormat(q.getText()) + "</html>");
-			quesLbl.setVerticalAlignment(SwingConstants.TOP);
-			quesLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
-			panel_4.add(quesLbl, BorderLayout.CENTER);
+			panel_4.add(Parser.parseTxt(q.getText(), ID + "-S"), BorderLayout.CENTER);
 			
 			JLabel markLbl = new JLabel("[" + q.getMark() + "]");
 			total += q.getMark();
@@ -324,10 +329,7 @@ public class BasicQuestion extends JPanel {
 			ansLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_1.add(ansLbl, BorderLayout.NORTH);
 			
-			JLabel realAnsLbl = new JLabel("<html>" + Parser.parseFormat(a.getText()) + "</html>");
-			realAnsLbl.setVerticalAlignment(SwingConstants.TOP);
-			realAnsLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
-			panel_1.add(realAnsLbl, BorderLayout.CENTER);
+			panel_1.add(Parser.parseTxt(a.getText(), ID + "-A"), BorderLayout.CENTER);
 			
 			JPanel panel_2 = new JPanel();
 			panel_1.add(panel_2, BorderLayout.SOUTH);

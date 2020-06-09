@@ -188,10 +188,11 @@ public class Selector {
 			// Skip unavailable ones
 			if(a.asText().trim().contains("NOT YET AVAILABLE"))
 				continue;
-			JButton bt = new JButton(Main.s.getLocal().get("main." + a.asText().trim().toLowerCase()));
+			JButton bt = new JButton(Main.s.getLocal().get("main." + a.asText().trim().toLowerCase().replace(" ", ".")));
 			// Get Icon for databases
 			try {
-				bt.setIcon(new ImageIcon(Selector.class.getResource("/img/subj/" + a.asText().trim().toUpperCase().substring(0, 4) + ".png")));
+				String subjID = a.asText().trim().toUpperCase();
+				bt.setIcon(new ImageIcon(Selector.class.getResource("/img/subj/" + subjID.substring(0, 2) + subjID.substring(subjID.length() - 2, subjID.length()) + ".png")));
 			}catch(NullPointerException e) {
 				bt.setText(a.asText().trim());
 				bt.setIcon(new ImageIcon(Selector.class.getResource("/img/subj/UNK.png")));

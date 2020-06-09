@@ -9,8 +9,14 @@ gen.apply=Appliquer
 gen.reset=Remettre
 gen.finish=Terminer
 
-main.chemistry=La chimie
-main.physics=La physique
+main.biology=Biologie
+main.chemistry=Chimie
+main.physics=Physique
+main.further.mathematics.hl=Mathématiques Complémentaires NS
+main.mathematics.hl=Mathématiques NS
+main.mathematics.sl=Mathématiques NM
+main.mathematical.studies=Études Mathématiques
+main.geography=Géographie
 
 set=Les paramètres
 set.lang=Langue
