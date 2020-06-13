@@ -10,8 +10,8 @@ import java.util.Scanner;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 
 import com.ib.quest.Constants.OffData;
-import com.ib.quest.Loader.QType;
-import com.ib.quest.Loader.Question;
+import com.ib.quest.gui.questions.Question;
+import com.ib.quest.gui.questions.Question.QType;
 
 /**
  * Handles Offline stuff

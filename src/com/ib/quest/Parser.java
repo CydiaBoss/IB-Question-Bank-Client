@@ -104,7 +104,7 @@ public class Parser {
 			// Filter the Math stuff
 			if(isMath) {
 				try {
-					File img = mkMath("\\[" + chunk + "\\]", ID + "-" + imgC);
+					File img = mkMath("\\[" + chunk + "\\]", "LAT-" + ID + "-" + imgC);
 					display += "<img src='" + img.toURI().toURL() + "'></img>";
 					imgC++;
 				} catch (MalformedURLException e) {}

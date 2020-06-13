@@ -18,6 +18,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlHeading2;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlParagraph;
+import com.ib.quest.gui.questions.Question;
 
 /**
  * The Loader will Load the Questions off the website or the offline database
@@ -246,138 +247,6 @@ public class Loader {
 		}
 	}
 	
-	//- Question Parts -//
-	
-	/**
-	 * Question Part Types
-	 * 
-	 * @author andre
-	 */
-	public static enum QType {
-		/**
-		 * Answers
-		 */
-		ANS,
-		/**
-		 * Questions
-		 */
-		QUEST,
-		/**
-		 * Details
-		 */
-		SPEC;
-	}
-	
-	/**
-	 * Question Object
-	 * 
-	 * @author andre
-	 */
-	public class Question{
-		
-		/**
-		 * Texts
-		 */
-		private String text, 
-		/**
-		 * Labels
-		 */
-					   label;
-		
-		/**
-		 * Mark
-		 */
-		private int mark;
-		
-		/**
-		 * Question Type
-		 */
-		private QType qType;
-		
-		private Question(String text, String label, String mark, QType qType) {
-			this.text = text.trim();
-			this.label = label.trim();
-			this.mark = Integer.parseInt(mark.trim().substring(1, mark.length() - 1));
-			this.qType = qType;
-		}
-		
-		/**
-		 * Creates a Question Object
-		 * 
-		 * @param text
-		 * The Text
-		 * @param label
-		 * The Label
-		 * @param mark
-		 * The Mark
-		 */
-		private Question(String text, String label, String mark) {
-			this(text, label, mark, QType.QUEST);
-		}
-		
-		/**
-		 * Creates a Question Object
-		 * 
-		 * @param text
-		 * The Text
-		 * @param label
-		 * The Label
-		 */
-		public Question(String text, String label) {
-			this(text, label, "[-1]", QType.ANS);
-		}
-		
-		/**
-		 * Creates a Question Object
-		 * 
-		 * @param text
-		 * The Text
-		 */
-		public Question(String text) {
-			this(text, "", "[-1]", QType.SPEC);
-		}
-
-		/**
-		 * Get Text
-		 * 
-		 * @return
-		 * The Text
-		 */
-		public String getText() {
-			return text;
-		}
-
-		/**
-		 * Get Label
-		 * 
-		 * @return
-		 * The Label
-		 */
-		public String getLabel() {
-			return label;
-		}
-
-		/**
-		 * Get Mark
-		 * 
-		 * @return
-		 * The Mark
-		 */
-		public int getMark() {
-			return mark;
-		}
-
-		/**
-		 * Get Type
-		 * 
-		 * @return
-		 * The Type
-		 */
-		public QType getType() {
-			return qType;
-		}
-	}
-	
 	/**
 	 * The Questions Parts
 	 */
@@ -438,14 +307,10 @@ public class Loader {
 				if(e.getAttribute("class").equals("specification")) {
 					List<HtmlParagraph> tList = e.getByXPath("p");
 					for(HtmlParagraph p : tList)
-						qParts.add(new Question(p.asText().trim()));
+						qParts.add(new Question(ID, p));
 				// Actual Question
 				}else{
 					List<HtmlParagraph> tList = e.getByXPath("p");
-					String q = "";
-					for(HtmlParagraph p : tList) {
-						q += p.asXml().trim();
-					}
 					String lbl, mk;
 					// Try to get Label
 					try{
@@ -460,14 +325,11 @@ public class Loader {
 						mk = Constants.Database.MK;
 					}
 					// Add Question
-					qParts.add(new Question(q, lbl, mk));
+					qParts.add(new Question(ID, lbl, mk, tList.toArray(new HtmlParagraph[tList.size()])));
 				}
 			// Records Answers
 			else if(isAns) {
 				List<HtmlParagraph> tList = e.getByXPath("p");
-				String a = "";
-				for(HtmlParagraph p : tList)
-					a += p.asXml().trim();
 				String lbl;
 				// Try to get Label
 				try{
@@ -475,7 +337,7 @@ public class Loader {
 				}catch(NullPointerException e1) {
 					lbl = Constants.Database.LBL;
 				}
-				qParts.add(new Question(a, lbl));
+				qParts.add(new Question(ID, lbl, tList.toArray(new HtmlParagraph[tList.size()])));
 			}
 		}
 	}

@@ -45,20 +45,11 @@ public class Constants {
 		private static final URL IBONEXP() {
 			try {
 				return new URL("https://www.ibdocuments.com/IB%20QUESTIONBANKS/4.%20Fourth%20Edition");
-				// DEBUG ONLINE DB
-				//return new File("test/main.html").toURI().toURL();
 			} catch (MalformedURLException e) {
 				Main.throwError(Main.s.getLocal().get("error.in"), true);
 				return null;
 			}
 		}
-		
-		/**
-		 * Online Latex Equation Formatter
-		 */
-		@Deprecated
-		public static final String FORM = "<script src='https://polyfill.io/v3/polyfill.min.js?features=es6'></script>" + 
-				"<script id='MathJax-script' async src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'></script>";
 		
 		/**
 		 * Offline
