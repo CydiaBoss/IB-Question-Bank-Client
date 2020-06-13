@@ -1,14 +1,20 @@
 package com.ib.quest;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import javax.imageio.ImageIO;
+
 import org.apache.commons.io.output.FileWriterWithEncoding;
 
+import com.gargoylesoftware.htmlunit.html.HtmlImage;
 import com.ib.quest.Constants.OffData;
 import com.ib.quest.gui.questions.Question;
 import com.ib.quest.gui.questions.Question.QType;
@@ -73,18 +79,34 @@ public class OfflineBuilder {
 									+ topic + "\n"
 								+ "</a>");
 		// Inject questions again
-		// TODO Determine whether this is required
 		injFile(top, "list", "<li>\n"
 							   + questID + ":\n"
 						       + "<a href='./" + quest.getName() + "'>\n"
-							       + qP.get(0).getText() + "\n"
+							       + qP.get(0).getRaw() + "\n"
 						       + "</a>\n"
 					       + "</li>");
 		// Generate text to inject into the question file
 		String txt = "<h2>Question</h2>",
 			   ans = "\n<h2>Markscheme</h2>";
+		// Image Counter
+		int imgC = 0;
 		// Parse the questions parts
-		for(Question q : qP)
+		for(Question q : qP) {
+			// Prepare Images
+			for(HtmlImage img : q.getImgs()) {
+				// Pulls Image
+				try {
+					// Gets Image
+					BufferedImage transImg = ImageIO.read(new URL(img.getSrcAttribute()));
+					// Downloads it
+					File transImgFile = new File(subjDir.getPath() + "/" + questID + "-" + imgC + "." + img.getAttribute("data-type"));
+					ImageIO.write(transImg, img.getAttribute("data-type"), transImgFile);
+					imgC++;
+					// Update src
+					img.setAttribute("src", transImgFile.toURI().toURL().toString());
+				} catch (IOException e) {}
+			}
+			// Filter Parts
 			if(q.getType().equals(QType.SPEC))
 				txt += "\n<div class='specification'>\n" + 
 						   "<p>" + q.getText() + "</p>\n" + 
@@ -106,6 +128,7 @@ public class OfflineBuilder {
 					       	   q.getLabel() + "\n" + 
 					       "</div>\n" + 
 					   "</div>";
+		}
 		// Inject the question itself
 		injFile(quest, "question", txt + ans);
 		// Finished
@@ -137,11 +160,22 @@ public class OfflineBuilder {
 		// Remove Question File
 		if(!quest.delete())
 			return false;
+		// Remove Images
+		for(File img : subjDir.listFiles(new FilenameFilter() {
+			/**
+			 * Checks if image is attached to this question
+			 */
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.contains(questID + "-");
+			}
+		}))
+			img.delete();
 		// Remove entry from topic 
 		extFile(top, "<li>\n"
 					   + questID + ":\n"
 				       + "<a href='./" + quest.getName() + "'>\n"
-					       + qP.get(0).getText() + "\n"
+					       + qP.get(0).getRaw() + "\n"
 				       + "</a>\n"
 			       + "</li>");
 		// Stop if file is empty

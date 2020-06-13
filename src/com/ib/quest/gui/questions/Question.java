@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -44,6 +45,12 @@ public class Question{
 	 * Texts
 	 */
 	private HtmlParagraph[] p; 
+	
+	/**
+	 * Images
+	 */
+	private ArrayList<HtmlImage> imgs;
+	
 	/**
 	 * Labels
 	 */
@@ -75,13 +82,18 @@ public class Question{
 	 * Repairs, Generates and Downloads all assets for the question
 	 */
 	private void assetGen(String ID) {
+		// Create Array
+		imgs = new ArrayList<>();
 		// Looks through Paragraphs
 		for(HtmlParagraph pg : p) {
 			// Retrieves all images
 			List<HtmlImage> img = pg.getByXPath("img");
 			int imgC = 0;
 			for(HtmlImage i : img) {
+				// Get SRC
 				String src = i.getSrcAttribute();
+				// Img Type
+				String fileType = (i.getAttribute("data-type").equals(HtmlImage.ATTRIBUTE_NOT_DEFINED))? "png" : i.getAttribute("data-type");
 				// Checks for Base64 Image Data
 				if(src.contains("data") && src.contains("image") && src.contains("base64"))
 					try {
@@ -89,17 +101,28 @@ public class Question{
 						byte[] data = Base64.getDecoder().decode(src.split(",")[1]);
 						BufferedImage datImg = ImageIO.read(new ByteArrayInputStream(data));
 						// Create File in Temp Folder
-						String fileType = src.split("[\\/|;]")[1];
-						File datImgFile = new File(Main.TEMP.getPath() + "\\IMG-" + ID + "-" + imgC + "." + fileType);
+						fileType = src.split("[\\/|;]")[1];
+						File datImgFile = new File(Main.TEMP.getPath() + "/IMG-" + ID + "-" + imgC + "." + fileType);
 						ImageIO.write(datImg, fileType, datImgFile);
 						datImgFile.deleteOnExit();
 						imgC++;
 						// Update <img>
 						i.setAttribute("src", datImgFile.toURI().toURL().toString());
 					} catch (IOException e) {}
-				// Changes any local paths to global
-				else if(src.contains("../")) 
+				// Changes any relative paths to absolute paths
+				else if(src.contains("../")) {
+					// Fixes Link
 					i.setAttribute("src", src.replaceAll("(\\.\\.\\/)+", "https://"));
+					// Adds File type
+					String[] chunks = src.split("\\.");
+					fileType = chunks[chunks.length - 1];
+				}
+				// Update ALT to error message
+				i.setAttribute("alt", Main.s.getLocal().get("error.img"));
+				// Add file type
+				i.setAttribute("data-type", fileType);
+				// Add to Image Bank
+				imgs.add(i);
 			}
 		}
 	}
@@ -159,6 +182,20 @@ public class Question{
 			txt += pg.asXml().trim();
 		return txt;
 	}
+	
+	/**
+	 * Get Raw Text
+	 * 
+	 * @return
+	 * Raw Text
+	 */
+	public String getRaw() {
+		// Combines all Paragraphs
+		String txt = "";
+		for(HtmlParagraph pg : p)
+			txt += pg.asText().trim();
+		return txt;
+	}
 
 	/**
 	 * Get Label
@@ -188,5 +225,15 @@ public class Question{
 	 */
 	public QType getType() {
 		return qType;
+	}
+	
+	/**
+	 * Gets all {@link HtmlImage}
+	 * 
+	 * @return
+	 * The {@link HtmlImage}s
+	 */
+	public ArrayList<HtmlImage> getImgs() {
+		return imgs;
 	}
 }

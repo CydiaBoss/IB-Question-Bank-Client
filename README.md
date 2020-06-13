@@ -17,7 +17,7 @@ An application to host the IB past paper questions from the IB document database
 <ul>
   <li>Examiner</li>
   <li>Custom Input</li>
-  <li>Localization</li>
+  <li>More Localization</li>
   <li>And More!</li>
 </ul>
 
@@ -25,7 +25,14 @@ An application to host the IB past paper questions from the IB document database
 <p>The zip file contains a test database as the current online database is offline due to IB Exam Season.</p>
 <a href='https://github.com/CydiaBoss/IB-Question-Bank-Client/raw/master/program/IBQB-Proto-Win-Demo.jar'>Windows</a><br>
 <a href='https://github.com/CydiaBoss/IB-Question-Bank-Client/raw/master/program/IBQB-Proto-Demo.jar'>Other OS (Mac, Linux, etc)</a>
-<ul><li>The other os file requires the installation of <a href='https://www.java.com/en/download/'>Java 8</a>.</li></ul>
+<ul><li>This program requires the installation of <a href='https://www.java.com/en/download/'>Java 8</a>.</li></ul>
+
+# Bugs
+<ul>
+	<li>Formatting Issue with some Questions</li>
+	<li>Display Sizing</li>
+	<li>Potential Unsupported Image</li>
+</ul>
 
 # Disclaimer
 I am not associated with IB Documents and their team in any way, shape or form.

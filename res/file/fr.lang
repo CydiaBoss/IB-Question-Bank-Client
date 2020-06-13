@@ -61,3 +61,4 @@ error.link=Liens erronés. Vérifie que vous avez la version dernière.
 error.setting=le fichier de paramètres est erroné.
 error.top.sel=Vous devez sélectionner un sujet pour continuer.
 error.quest.sel=Vous devez sélectionner une question pour continuer.
+error.img=L'image perdue

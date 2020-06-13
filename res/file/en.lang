@@ -61,3 +61,4 @@ error.link=Invalid Links. Please ensure that you have the latest version.
 error.setting=Invalid setting file detected.
 error.top.sel=You have to select a topic to proceed.
 error.quest.sel=You have to select a question to proceed.
+error.img=Image not found/generated
