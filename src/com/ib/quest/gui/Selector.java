@@ -4,11 +4,8 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import java.awt.Dialog.ModalExclusionType;
-import java.time.LocalDateTime;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
-import java.util.ArrayList;
-import java.util.Collections;
 
 import javax.swing.JButton;
 import java.awt.BorderLayout;
@@ -20,6 +17,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.ib.quest.Loader;
 import com.ib.quest.Main;
 import com.ib.quest.gui.questions.BasicQuestion;
+import com.ib.quest.gui.questions.RandomQuestion;
 
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
@@ -40,7 +38,6 @@ import java.awt.Font;
 import javax.swing.JSpinner;
 import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.SpinnerListModel;
-import java.awt.CardLayout;
 import javax.swing.ImageIcon;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -60,7 +57,7 @@ public class Selector {
 	private Loader ld;
 	
 	// JPanels
-	private JPanel subj, topic, quest, ran;
+	private JPanel subj, topic, quest;
 	
 	// Hierarchy of Subtopics
 	private String curSubj, curTopic;
@@ -470,7 +467,9 @@ public class Selector {
 						((String) tab.getValueAt(tab.getSelectedRow(), 0)).trim(), main, quest), BorderLayout.CENTER);
 				reload();
 			}else{
-				ranQuestSlide((int) spinner.getValue());
+				// Update the JFrame to hold the random quest things
+				main.getContentPane().remove(quest);
+				main.getContentPane().add(new RandomQuestion(ld, (int) spinner.getValue(), main, quest));
 				reload();
 			}
 		});
@@ -480,159 +479,5 @@ public class Selector {
 		main.getContentPane().remove(topic);
 		main.getContentPane().add(quest, BorderLayout.CENTER);
 		reload();
-	}
-	
-	/* Variables for the random */
-	
-	// Tracks Slide count
-	private int curSlide = 1;
-	// Tracks whether submitted or not
-	private boolean submit = false;
-	
-	/**
-	 * Creates the random page
-	 */
-	private void ranQuestSlide(int amt) {
-		
-		// Reset
-		curSlide = 1;
-		submit = false;
-		// Pick Question
-		BasicQuestion[] selQ = new BasicQuestion[amt];
-		// A Faster Style of Random for a smaller list
-		ArrayList<String> ranID = new ArrayList<>();
-		// Set to List
-		for(String s : ld.getQues().keySet()) 
-			ranID.add(s);
-		// Random Questions
-		int curQ = 0;
-		mainLoop:
-		while(curQ < amt){
-			// Shuffle array with quest ID
-			Collections.shuffle(ranID);
-			// Add enough
-			for(String qID : ranID) {
-				selQ[curQ] = new BasicQuestion(ld, qID, null, null);
-				curQ++;
-				// Escape Once Reached
-				if(curQ == amt)
-					break mainLoop;
-			}
-		}
-			
-		main.getContentPane().remove(quest);
-		
-		ran = new JPanel();
-		ran.setLayout(new BorderLayout(0, 0));
-		
-		JPanel panel_2 = new JPanel();
-		ran.add(panel_2, BorderLayout.NORTH);
-		panel_2.setLayout(new GridLayout(0, 1, 0, 10));
-		
-		JLabel titleLbl = new JLabel(String.format(Main.s.getLocal().get("ran.intro"), amt));
-		titleLbl.setFont(new Font("Tahoma", Font.BOLD, 14));
-		panel_2.add(titleLbl);
-		
-		JLabel curQLbl = new JLabel(String.format(Main.s.getLocal().get("ran.count"), curSlide, amt));
-		curQLbl.setFont(new Font("Tahoma", Font.PLAIN, 10));
-		panel_2.add(curQLbl);
-		
-		JPanel panel = new JPanel();
-		ran.add(panel, BorderLayout.CENTER);
-		CardLayout c = new CardLayout(0, 0);
-		panel.setLayout(c);
-		for(BasicQuestion bQ : selQ)
-			panel.add(bQ.getID(), bQ);
-		
-		JPanel panel_1 = new JPanel();
-		ran.add(panel_1, BorderLayout.SOUTH);
-		panel_1.setLayout(new GridLayout(1, 0, 60, 0));
-		
-		JButton quitBtn = new JButton(Main.s.getLocal().get("gen.quit"));
-		quitBtn.addActionListener(e -> {
-			main.getContentPane().remove(ran);
-			main.getContentPane().add(quest, BorderLayout.CENTER);
-			reload();
-		});
-		panel_1.add(quitBtn);
-		
-		Box horizontalBox = Box.createHorizontalBox();
-
-		JButton bacBtn = new JButton(Main.s.getLocal().get("gen.pre"));
-		
-		JButton nextBtn = new JButton(Main.s.getLocal().get("gen.next"));
-		
-		if(amt != 1) {
-			
-			panel_1.add(horizontalBox);
-		
-			bacBtn.setEnabled(false);
-			bacBtn.addActionListener(e -> {
-				c.previous(panel);
-				curSlide--;
-				curQLbl.setText(String.format(Main.s.getLocal().get("ran.count"), curSlide, amt));
-				if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit")) || nextBtn.getText().equals(Main.s.getLocal().get("gen.finish")))
-					nextBtn.setText(Main.s.getLocal().get("gen.next"));
-				if(curSlide == 1)
-					bacBtn.setEnabled(false);
-				nextBtn.setEnabled(true);
-			});
-			horizontalBox.add(bacBtn);
-			
-			Component horizontalGlue = Box.createHorizontalGlue();
-			horizontalBox.add(horizontalGlue);
-			
-		}else
-			nextBtn.setText(Main.s.getLocal().get("gen.submit"));
-		nextBtn.addActionListener(e -> {
-			if(nextBtn.getText().equals(Main.s.getLocal().get("gen.next"))) {
-				c.next(panel);
-				curSlide++;
-				curQLbl.setText(String.format(Main.s.getLocal().get("ran.count"), curSlide, amt));
-				bacBtn.setEnabled(true);
-				if(curSlide == amt) {
-					if(!submit)
-						nextBtn.setText(Main.s.getLocal().get("gen.submit"));
-					else
-						nextBtn.setText(Main.s.getLocal().get("gen.finish"));
-				}
-			// Reveal Answer and Move back to slide 1
-			}else if(nextBtn.getText().equals(Main.s.getLocal().get("gen.submit"))) {
-				submit = true;
-				// Generate Answer Pages
-				for(BasicQuestion bQ : selQ)
-					bQ.checkAns();
-				c.first(panel);
-				curSlide = 1;
-				// Prevent Btn from being named next even tho there is only 1 question
-				if(amt != 1)
-					nextBtn.setText(Main.s.getLocal().get("gen.next"));
-				else 
-					nextBtn.setText(Main.s.getLocal().get("gen.finish"));
-				curQLbl.setText(String.format(Main.s.getLocal().get("ran.count"), curSlide, amt));
-				bacBtn.setEnabled(false);
-				reload();
-			}else{
-				// Calculate Marks
-				int total = 0,
-					mks = 0;
-				for(BasicQuestion bQ : selQ) {
-					mks += bQ.getEarn();
-					total += bQ.getTotal();
-				}
-				Main.h.addEntry(LocalDateTime.now(), "Q" + amt + ".RND", mks, total);
-				quitBtn.doClick();
-			}
-		});
-		
-		// If More than 1 part of question, horizontal box will exist so add to that
-		if(amt != 1)
-			horizontalBox.add(nextBtn);
-		// Else, add to panel
-		else
-			panel_1.add(nextBtn);
-		
-		// Adds to the Mainframe
-		main.getContentPane().add(ran, BorderLayout.CENTER);
 	}
 }
