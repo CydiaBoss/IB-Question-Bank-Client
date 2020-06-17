@@ -51,6 +51,9 @@ ran.count=Question %1$d de %2$d
 offline=Changé du mode hors ligne
 online=Changé du mode en ligne
 
+load=Chargement
+load.asset=Télécharge les actifs
+
 error=Erreur
 error.in=Une erreur interne est décelé
 error.connect=Connexion à la base de données en ligne est échoué. Vérifie la connexion Internet.

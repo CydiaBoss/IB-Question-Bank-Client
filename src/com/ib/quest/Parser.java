@@ -14,8 +14,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import net.sourceforge.jeuclid.LayoutContext;
 import net.sourceforge.jeuclid.MathMLParserSupport;
 import net.sourceforge.jeuclid.context.LayoutContextImpl;
+import net.sourceforge.jeuclid.context.Parameter;
 import net.sourceforge.jeuclid.converter.Converter;
 import net.sourceforge.jeuclid.swing.JMathComponent;
 import uk.ac.ed.ph.snuggletex.SnuggleEngine;
@@ -34,6 +36,38 @@ public class Parser {
 	 * Starts the Snuggle Engine
 	 */
 	private static final SnuggleEngine SE = new SnuggleEngine();
+	
+	/**
+	 * Custom Layout Context for Image Generation
+	 */
+	private static final class IBLayoutContext implements LayoutContext{
+		
+		/**
+		 * The Default Instance
+		 */
+		public static final LayoutContext INSTANCE = new IBLayoutContext();
+		
+		/**
+		 * The Parent
+		 */
+		public LayoutContext parent = LayoutContextImpl.getDefaultLayoutContext();
+		
+		/**
+		 * Access Denied
+		 */
+		private IBLayoutContext() {}
+		
+		/**
+		 * Override Settings Here
+		 */
+		@Override
+		public Object getParameter(Parameter which) {
+			// Override Font Size
+			if(which.equals(Parameter.MATHSIZE))
+				return 16.0F;
+			return parent.getParameter(which);
+		}
+	}
 	
 	/**
 	 * Parses a string and formats it so it becomes a {@link JMathComponent}
@@ -58,7 +92,7 @@ public class Parser {
 			// Make Image
 			BufferedImage bi = Converter.getInstance().render(
 					MathMLParserSupport.parseString(sS.buildXMLString()), 
-					LayoutContextImpl.getDefaultLayoutContext());
+					IBLayoutContext.INSTANCE);
 			// Save Image
 			ImageIO.write(bi, "png", img = new File(Main.TEMP.getPath() + "\\" + name + ".png"));
 			// Temp

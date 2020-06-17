@@ -287,6 +287,7 @@ public class Loader {
 				isAns = false;
 		List<HtmlElement> tempList = questPg.getByXPath("//div[@class='page-content container']/div|"
 				  								      + "//div[@class='page-content container']/h2");
+		// Start
 		for(HtmlElement e : tempList) {
 			// Identifies whether the element is part of whatever
 			if(e instanceof HtmlHeading2)
@@ -306,8 +307,7 @@ public class Loader {
 				// Details
 				if(e.getAttribute("class").equals("specification")) {
 					List<HtmlParagraph> tList = e.getByXPath("p");
-					for(HtmlParagraph p : tList)
-						qParts.add(new Question(ID, p));
+					qParts.add(new Question(ID, tList.toArray(new HtmlParagraph[tList.size()])));
 				// Actual Question
 				}else{
 					List<HtmlParagraph> tList = e.getByXPath("p");
@@ -339,6 +339,8 @@ public class Loader {
 				}
 				qParts.add(new Question(ID, lbl, tList.toArray(new HtmlParagraph[tList.size()])));
 			}
+			// Add to Progress
 		}
+		// End
 	}
 }

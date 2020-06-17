@@ -29,6 +29,9 @@ import javax.swing.border.BevelBorder;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 
 /**
  * This is a JPanel for a basic question
@@ -88,6 +91,7 @@ public class BasicQuestion extends JPanel {
 	 * The mainframe. If null, pre must be null also
 	 * @param pre
 	 * The previous {@link JPanel}. If null, assume random feature
+	 * @wbp.parser.entryPoint
 	 */
 	public BasicQuestion(Loader ld, String ID, JFrame m, JPanel pre) {
 		
@@ -102,15 +106,36 @@ public class BasicQuestion extends JPanel {
 		// Builds the Panel
 		setLayout(new BorderLayout(0, 0));
 		
+		//TODO Fix layout so looks better
 		JPanel panel = new JPanel();
 		add(panel, BorderLayout.NORTH);
-		panel.setLayout(new GridLayout(0, 1, 0, 10));
+		GridBagLayout gbl_panel = new GridBagLayout();
+		gbl_panel.columnWidths = new int[]{0, 0};
+		gbl_panel.rowHeights = new int[]{0, 0, 0};
+		gbl_panel.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_panel.rowWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
+		panel.setLayout(gbl_panel);
 		
 		JLabel idLbl = new JLabel(ID);
 		idLbl.setFont(new Font("Tahoma", Font.BOLD, 14));
-		panel.add(idLbl);
+		GridBagConstraints gbc_idLbl = new GridBagConstraints();
+		gbc_idLbl.insets = new Insets(0, 0, 5, 0);
+		gbc_idLbl.anchor = GridBagConstraints.NORTH;
+		gbc_idLbl.fill = GridBagConstraints.HORIZONTAL;
+		gbc_idLbl.gridx = 0;
+		gbc_idLbl.gridy = 0;
+		panel.add(idLbl, gbc_idLbl);
 		
-		panel.add(Parser.parseTxt(txt, ID + "-Q"));
+		// Test to make sure nothing is added if not required
+		if(!txt.trim().equals("")) {
+			GridBagConstraints gbc_txt = new GridBagConstraints();
+			gbc_txt.insets = new Insets(0, 0, 5, 0);
+			gbc_txt.anchor = GridBagConstraints.NORTH;
+			gbc_txt.fill = GridBagConstraints.HORIZONTAL;
+			gbc_txt.gridx = 0;
+			gbc_txt.gridy = 1;
+			panel.add(Parser.parseTxt(txt, ID + "-Q"), gbc_txt);
+		}
 		
 		JPanel panel_1 = new JPanel();
 		add(panel_1, BorderLayout.SOUTH);
@@ -167,6 +192,7 @@ public class BasicQuestion extends JPanel {
 			total += q.getMark();
 			markLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			markLbl.setAlignmentX(RIGHT_ALIGNMENT);
+			markLbl.setAlignmentY(TOP_ALIGNMENT);
 			panel_4.add(markLbl, BorderLayout.EAST);
 			
 			Component verticalStrut_1 = Box.createVerticalStrut(15);
@@ -287,7 +313,6 @@ public class BasicQuestion extends JPanel {
 	 * 
 	 * @return
 	 * The total grade
-	 * @wbp.parser.entryPoint
 	 */
 	public void checkAns() {
 		

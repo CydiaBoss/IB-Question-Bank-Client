@@ -12,6 +12,7 @@ import javax.imageio.ImageIO;
 
 import com.gargoylesoftware.htmlunit.html.HtmlImage;
 import com.gargoylesoftware.htmlunit.html.HtmlParagraph;
+import com.ib.quest.Constants;
 import com.ib.quest.Main;
 
 /**
@@ -119,6 +120,14 @@ public class Question{
 				}
 				// Update ALT to error message
 				i.setAttribute("alt", Main.s.getLocal().get("error.img"));
+				// Change Size if too large
+				try {
+					if(i.getWidth() > Constants.Size.STAN_W - 80) {
+						double ratio = i.getHeight() / i.getWidth();
+						i.setAttribute("width", "" + (Constants.Size.STAN_W - 80));
+						i.setAttribute("height", "" + (int) ((Constants.Size.STAN_W - 80) * ratio));
+					}
+				} catch (IOException e) {}
 				// Add file type
 				i.setAttribute("data-type", fileType);
 				// Add to Image Bank
@@ -179,7 +188,13 @@ public class Question{
 		// Combines all Paragraphs
 		String txt = "";
 		for(HtmlParagraph pg : p)
-			txt += pg.asXml().trim();
+			txt += pg.asXml()
+				// TODO Fix this
+				.replaceAll("<\\/?span([^>]+)?>", "")
+				.replaceAll("<\\/?script([^>]+)?>", "")
+				.replaceAll("\\/\\/\\<\\!\\[CDATA\\[\n(?<lat>[^\n]+)\n\\/\\/]]>", "\\\\[${lat}\\\\]")
+				.replaceAll("\\s{2,}", " ")
+				.trim();
 		return txt;
 	}
 	

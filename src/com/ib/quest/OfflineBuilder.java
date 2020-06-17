@@ -109,11 +109,11 @@ public class OfflineBuilder {
 			// Filter Parts
 			if(q.getType().equals(QType.SPEC))
 				txt += "\n<div class='specification'>\n" + 
-						   "<p>" + q.getText() + "</p>\n" + 
+						   q.getText() + "\n" + 
 					   "</div>";
 			else if(q.getType().equals(QType.QUEST))
 				txt += "\n<div class='question'>\n" + 
-						   "<p>" + q.getText() + "</p>\n" + 
+						   q.getText() + "\n" + 
 					       "<div class='question_part_label'>\n" + 
 					       	   q.getLabel() + "\n" + 
 					       "</div>\n" + 
@@ -123,7 +123,7 @@ public class OfflineBuilder {
 					   "</div>";
 			else
 				ans += "\n<div class='question'>\n" + 
-						   "<p>" + q.getText() + "</p>\n" + 
+						   q.getText() + "\n" + 
 					       "<div class='question_part_label'>\n" + 
 					       	   q.getLabel() + "\n" + 
 					       "</div>\n" + 

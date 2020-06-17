@@ -51,6 +51,9 @@ ran.count=Question %1$d of %2$d
 offline=Switching to offline mode.
 online=Switching to online mode.
 
+load=Loading
+load.asset=Downloading Assets
+
 error=Error
 error.in=Internal Error Detected
 error.connect=Connection to online database failed. Check internet connection.
