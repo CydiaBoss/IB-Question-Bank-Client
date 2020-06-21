@@ -190,9 +190,9 @@ public class Question{
 		for(HtmlParagraph pg : p)
 			txt += pg.asXml()
 				// TODO Fix this
-				.replaceAll("<\\/?span([^>]+)?>", "")
-				.replaceAll("<\\/?script([^>]+)?>", "")
-				.replaceAll("\\/\\/\\<\\!\\[CDATA\\[\n(?<lat>[^\n]+)\n\\/\\/]]>", "\\\\[${lat}\\\\]")
+//				.replaceAll("<\\/?span([^>]+)?>", "")
+//				.replaceAll("<\\/?script([^>]+)?>", "")
+//				.replaceAll("\\/\\/\\<\\!\\[CDATA\\[\n(?<lat>[^\n]+)\n\\/\\/]]>", "\\\\[${lat}\\\\]")
 				.replaceAll("\\s{2,}", " ")
 				.trim();
 		return txt;

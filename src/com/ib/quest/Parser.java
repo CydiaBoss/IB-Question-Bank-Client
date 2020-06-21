@@ -1,6 +1,7 @@
 package com.ib.quest;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -113,7 +115,9 @@ public class Parser {
 	 * @return
 	 * The JPanel
 	 */
-	public static final JEditorPane parseTxt(String txt, String ID) {
+	public static final JScrollPane parseTxt(String txt, String ID) {
+		// Size
+		Dimension preSize = new Dimension(Constants.Size.STAN_W - 80, Constants.Size.STAN_H / 2);
 		// Container
 		JEditorPane lbl = null;
 		// If does not contain Latex, return
@@ -122,8 +126,12 @@ public class Parser {
 			lbl = new JEditorPane("text/html", txt);
 			lbl.setBackground(new Color(240, 240, 240));
 			lbl.setEditable(false);
-			// Size
-			return lbl;
+			// Scroll
+			JScrollPane jSP = new JScrollPane(lbl, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			jSP.setMaximumSize(preSize);
+			jSP.setPreferredSize(preSize);
+			// Return
+			return jSP;
 		}
 		// Parse txt
 		boolean isMath = false;
@@ -151,7 +159,11 @@ public class Parser {
 		lbl = new JEditorPane("text/html", display);
 		lbl.setBackground(new Color(240, 240, 240));
 		lbl.setEditable(false);
+		// Scroll
+		JScrollPane jSP = new JScrollPane(lbl, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		jSP.setMaximumSize(preSize);
+		jSP.setPreferredSize(preSize);
 		// Size
-		return lbl;
+		return jSP;
 	}
 }

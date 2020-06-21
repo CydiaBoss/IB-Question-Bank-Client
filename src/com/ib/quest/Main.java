@@ -1,5 +1,7 @@
 package com.ib.quest;
 
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 
 import javax.swing.JFrame;
@@ -78,7 +80,9 @@ public class Main implements Runnable{
 	 * If the error is fatal
 	 */
 	public static void throwError(String msg, boolean fatal) {
+		// Error Prompt
 		JOptionPane.showMessageDialog(m, msg, s.getLocal().get("error"), (fatal)? JOptionPane.ERROR_MESSAGE : JOptionPane.WARNING_MESSAGE);
+		// Fatal Stop
 		if(fatal)
 			System.exit(-1);
 	}
@@ -94,6 +98,37 @@ public class Main implements Runnable{
 		h = new History();
 		ld = new Loader();
 		sel = new Selector(ld);
+		// Make Closing Action
+		m.addWindowListener(new WindowListener() {
+			
+			@Override
+			public void windowOpened(WindowEvent e) {}
+			
+			@Override
+			public void windowIconified(WindowEvent e) {}
+			
+			@Override
+			public void windowDeiconified(WindowEvent e) {}
+			
+			@Override
+			public void windowDeactivated(WindowEvent e) {}
+			
+			/**
+			 * Close only if yes is pressed
+			 */
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if(JOptionPane.showConfirmDialog(m, s.getLocal().get("main.close") + " " + s.getLocal().get("gen.sure"), 
+						s.getLocal().get("gen.sure"), JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+					System.exit(0);
+			}
+			
+			@Override
+			public void windowClosed(WindowEvent e) {}
+			
+			@Override
+			public void windowActivated(WindowEvent e) {}
+		});
 	}
 
 }

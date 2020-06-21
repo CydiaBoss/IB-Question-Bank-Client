@@ -8,6 +8,7 @@ gen.quit=Annuler
 gen.apply=Appliquer
 gen.reset=Remettre
 gen.finish=Terminer
+gen.sure=Êtes-vous sûr?
 
 main.biology=Biologie
 main.chemistry=Chimie
@@ -17,6 +18,8 @@ main.mathematics.hl=Mathématiques NS
 main.mathematics.sl=Mathématiques NM
 main.mathematical.studies=Études Mathématiques
 main.geography=Géographie
+
+main.close=Vous allez fermer la fenêtre. Vous perdrez tout les données non sauvegardées.
 
 set=Les paramètres
 set.lang=Langue

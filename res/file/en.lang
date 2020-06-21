@@ -8,6 +8,7 @@ gen.quit=Cancel
 gen.apply=Apply
 gen.reset=Reset
 gen.finish=Finish
+gen.sure=Are you sure?
 
 main.biology=Biology
 main.chemistry=Chemistry
@@ -17,6 +18,8 @@ main.mathematics.hl=Mathematics HL
 main.mathematics.sl=Mathematics SL
 main.mathematical.studies=Mathematics Studies
 main.geography=Geography
+
+main.close=You are about to close the window. You will lose all your unsaved progress.
 
 set=Settings
 set.lang=Language

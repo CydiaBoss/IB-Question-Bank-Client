@@ -109,7 +109,7 @@ public class Selector {
 		main.setSize(Constants.Size.STAN_W , Constants.Size.STAN_H);
 		// Spawns the JFrame in the middle of the screen
 		main.setLocationRelativeTo(null);
-		main.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		main.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		main.getContentPane().setLayout(new BorderLayout(0, 0));
 		
 		Component horizontalStrut = Box.createHorizontalStrut(20);
