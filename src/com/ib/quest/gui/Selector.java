@@ -102,7 +102,9 @@ public class Selector {
 	private void initialize() {
 		// Initialize
 		main = Main.m;
-		main.setTitle(Main.s.getLocal().get("gen.title"));
+		// Adds an Offline tag if in offline mode
+		main.setTitle(Main.s.getLocal().get("gen.title") + 
+				(Main.s.getSetting().get("connect").equals("1")? " [" + Main.s.getLocal().get("set.connect.off") + "]" : ""));
 		main.setIconImage(Toolkit.getDefaultToolkit().getImage(Selector.class.getResource("/img/IBRRI.png")));
 		main.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		main.setResizable(false);
@@ -180,7 +182,6 @@ public class Selector {
 		panel.setLayout(new GridLayout(0, 2, 10, 20));
 		
 		// Button Addition
-		// TODO Will have to update later as Math HL and Math SL will interfere  
 		for(HtmlAnchor a : ld.getDBs()) {
 			// Skip unavailable ones
 			if(a.asText().trim().contains("NOT YET AVAILABLE"))
@@ -295,7 +296,6 @@ public class Selector {
 		panel.setLayout(new GridLayout(0, 1, 0, 0));
 		
 		// Create the 2D Array from HashMap
-		// TODO add offline selection feature
 		String[] titles = {Main.s.getLocal().get("quest.sel.id"), Main.s.getLocal().get("quest.sel.qu"), Main.s.getLocal().get("set.connect.off")};
 
 		// Offline

@@ -12,20 +12,21 @@ import javax.imageio.ImageIO;
 
 import com.gargoylesoftware.htmlunit.html.HtmlImage;
 import com.gargoylesoftware.htmlunit.html.HtmlParagraph;
+import com.gargoylesoftware.htmlunit.html.HtmlScript;
+import com.gargoylesoftware.htmlunit.html.HtmlSpan;
 import com.ib.quest.Constants;
 import com.ib.quest.Main;
 
 /**
  * Question Object
  * 
- * @author andre
+ * @author Andrew Wang
+ * @version 1.0.4.9
  */
 public class Question{
 	
 	/**
 	 * Question Part Types
-	 * 
-	 * @author andre
 	 */
 	public static enum QType {
 		/**
@@ -187,14 +188,21 @@ public class Question{
 	public String getText() {
 		// Combines all Paragraphs
 		String txt = "";
-		for(HtmlParagraph pg : p)
+		// TODO Play around with this
+		for(HtmlParagraph pg : p) {
+			List<HtmlSpan> sp = null;
+			if((sp = pg.getByXPath("//span[@class='MathJax_Preview']")).size() != 0) {
+				// Fixes Span
+				for(HtmlSpan span : sp)
+					span.setTextContent("\\[" + span.getTextContent().trim() + "\\]");
+				// Removes the script portion
+				for(Object script : pg.getByXPath("//script[@type='math/tex']"))
+					((HtmlScript) script).setTextContent("");
+			}
+			// Append String
 			txt += pg.asXml()
-				// TODO Fix this
-//				.replaceAll("<\\/?span([^>]+)?>", "")
-//				.replaceAll("<\\/?script([^>]+)?>", "")
-//				.replaceAll("\\/\\/\\<\\!\\[CDATA\\[\n(?<lat>[^\n]+)\n\\/\\/]]>", "\\\\[${lat}\\\\]")
-				.replaceAll("\\s{2,}", " ")
 				.trim();
+		}
 		return txt;
 	}
 	
