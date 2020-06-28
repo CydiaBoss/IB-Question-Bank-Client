@@ -74,7 +74,12 @@ public class Question{
 	private Question(String ID, String label, String mark, QType qType, HtmlParagraph... p) {
 		this.p = p;
 		this.label = label.trim();
-		this.mark = Integer.parseInt(mark.trim().substring(1, mark.length() - 1));
+		try {
+			this.mark = Integer.parseInt(mark.trim().substring(1, mark.length() - 1));
+		// If number is bad, go to default (1)
+		}catch(NumberFormatException e) {
+			this.mark = 1;
+		}
 		this.qType = qType;
 		// Assets
 		assetGen(ID);
@@ -194,7 +199,9 @@ public class Question{
 			if((sp = pg.getByXPath("//span[@class='MathJax_Preview']")).size() != 0) {
 				// Fixes Span
 				for(HtmlSpan span : sp)
-					span.setTextContent("\\[" + span.getTextContent().trim() + "\\]");
+					// Test for Valid Latex
+					if(!span.getTextContent().contains("\\[") && !span.getTextContent().contains("\\(") && !span.getTextContent().contains("$$")) 
+						span.setTextContent("\\[" + span.getTextContent().trim() + "\\]");
 				// Removes the script portion
 				for(Object script : pg.getByXPath("//script[@type='math/tex']"))
 					((HtmlScript) script).setTextContent("");
