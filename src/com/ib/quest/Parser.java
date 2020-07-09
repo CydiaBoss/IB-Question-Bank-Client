@@ -2,6 +2,7 @@ package com.ib.quest;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +13,8 @@ import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.UIManager;
+import javax.swing.text.html.HTMLDocument;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -66,7 +69,7 @@ public class Parser {
 		public Object getParameter(Parameter which) {
 			// Override Font Size
 			if(which.equals(Parameter.MATHSIZE))
-				return 16.0F;
+				return Constants.Size.FMSIZE;
 			return parent.getParameter(which);
 		}
 	}
@@ -118,6 +121,7 @@ public class Parser {
 	public static final JScrollPane parseTxt(String txt, String ID) {
 		// Size
 		Dimension maxSize = new Dimension(Constants.Size.STAN_W - 80, Constants.Size.STAN_H / 2);
+		Dimension minSize = new Dimension(Constants.Size.STAN_W - 80, Constants.Size.STAN_H / 6);
 		// Container
 		JEditorPane lbl = null;
 		// If does not contain Latex, return
@@ -129,7 +133,14 @@ public class Parser {
 			// Scroll
 			JScrollPane jSP = new JScrollPane(lbl, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			jSP.setMaximumSize(maxSize);
+			jSP.setMinimumSize(minSize);
 			jSP.setPreferredSize(null);
+			// Sets Font as System Font
+			// TODO Test if this works
+			Font font = UIManager.getFont("Label.font");
+	        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
+	                "font-size: " + font.getSize() + "pt; }";
+	        ((HTMLDocument)lbl.getDocument()).getStyleSheet().addRule(bodyRule);
 			// Return
 			return jSP;
 		}
@@ -162,7 +173,13 @@ public class Parser {
 		// Scroll
 		JScrollPane jSP = new JScrollPane(lbl, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		jSP.setMaximumSize(maxSize);
+		jSP.setMinimumSize(minSize);
 		jSP.setPreferredSize(null);
+		// Sets Font as System Font
+		Font font = UIManager.getFont("Label.font");
+        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
+                "font-size: " + font.getSize() + "pt; }";
+        ((HTMLDocument)lbl.getDocument()).getStyleSheet().addRule(bodyRule);
 		// Size
 		return jSP;
 	}

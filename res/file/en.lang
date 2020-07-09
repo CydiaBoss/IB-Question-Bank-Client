@@ -55,6 +55,20 @@ offline=Switching to offline mode.
 online=Switching to online mode.
 
 load=Loading
+load.start=Launching
+load.start.hist=History Loaded
+load.start.web=Connected to Website
+load.start.web.link=Links Pulled
+load.top=Loading Subjects
+load.top.db=Loading Database
+load.top.list=List Compiled
+load.top.lk=Actions Linked
+load.ques=Loading Questions
+load.ques.rd=Reading Questions
+load.ques.array=Compiling Arrays
+load.ques.table=Table Made
+load.ui=Building UI
+load.wrap=Wrapping Up
 load.asset=Downloading Assets
 
 error=Error

@@ -22,6 +22,16 @@ public class Constants {
 		 */
 		public static final int STAN_W = 600,
 								STAN_H = 650;
+		
+		/**
+		 * Math Font Size
+		 */
+		public static final float FMSIZE = 16.0F;
+		
+		/**
+		 * Font Size
+		 */
+		public static final int FSIZE = 12;
 	}
 	
 	/**

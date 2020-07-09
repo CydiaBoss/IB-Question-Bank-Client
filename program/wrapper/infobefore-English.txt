@@ -1,0 +1,7 @@
+Thanks for trying out my IB Question Bank Client :)
+
+Disclaimer:
+I am not associated with IB Documents and their team 
+in any way shape or form. This is just a fun project that 
+I decided to create. It is intented to be used for 
+educational purposes only.

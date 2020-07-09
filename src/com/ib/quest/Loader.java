@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 
+import javax.swing.JProgressBar;
+
 import org.apache.commons.logging.LogFactory;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
@@ -19,6 +21,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlHeading2;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlParagraph;
 import com.ib.quest.gui.questions.Question;
+import com.ib.quest.gui.template.Progress;
 
 /**
  * The Loader will Load the Questions off the website or the offline database
@@ -35,24 +38,32 @@ public class Loader {
 	// Offline
 	private OfflineBuilder o = null;
 	
+	// Private Var
+	private Progress p;
+	
 	/**
 	 * Creates the Loader Object
 	 */
-	public Loader(){
+	public Loader(Progress p){
+		// Progress
+		this.p = p;
 		// Remove Error Msg
 		LogFactory.getFactory().setAttribute("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.NoOpLog");
 		java.util.logging.Logger.getLogger("com.gargoylesoftware.htmlunit").setLevel(Level.OFF); 
 		java.util.logging.Logger.getLogger("org.apache.commons.httpclient").setLevel(Level.OFF);
+		p.progress();
 		// Create Objs
 		c = new WebClient();
 		// Settings
-		c.getOptions().setUseInsecureSSL(false);
+		c.getOptions().setUseInsecureSSL(true);
 		c.getOptions().setCssEnabled(false);
 		c.getOptions().setAppletEnabled(false);
-		c.getOptions().setJavaScriptEnabled(true);
+		c.getOptions().setJavaScriptEnabled(false);
 		c.getOptions().setPrintContentOnFailingStatusCode(false);
 		c.getOptions().setThrowExceptionOnFailingStatusCode(false);
 		c.getOptions().setThrowExceptionOnScriptError(false);
+		// Web Client Loaded
+		p.progress();
 		// Get Online Page
 		try {
 			if(Main.s.getSetting().get("connect").equals("0")) {
@@ -66,8 +77,10 @@ public class Loader {
 			Main.throwError(Main.s.getLocal().get("error.in") + " " + Main.s.getLocal().get("offline"), false);
 			offline();
 		}
+		// Buttons Loaded
 		// Loads the Links
 		loadLinks();
+		p.progress();
 	}
 	
 	/**
@@ -131,6 +144,9 @@ public class Loader {
 				return;
 			}
 		}
+		// Finish Getting Webpage
+		JProgressBar pgB = p.addTask(Main.s.getLocal().get("load.start.web.link"), 100);
+		pgB.setIndeterminate(true);
 		// Copy the Links down
 		for(HtmlElement a : div.getHtmlElementDescendants()) {
 			if(!(a instanceof HtmlAnchor))
@@ -138,6 +154,9 @@ public class Loader {
 			// Adds the links to a array
 			links.add((HtmlAnchor) a);
 		}
+		// Finish Getting All Links
+		pgB.setValue(100);
+		pgB.setIndeterminate(false);
 	}
 	
 	//- Current Database -//
@@ -160,7 +179,7 @@ public class Loader {
 	 * @param a
 	 * The desired subject database 
 	 */
-	public void parseDatabase(HtmlAnchor a) {
+	public void parseDatabase(HtmlAnchor a, Progress p) {
 		// Clears the List to host the new Database
 		subj.clear();
 		// Loads the Page
@@ -175,9 +194,14 @@ public class Loader {
 			Main.throwError(Main.s.getLocal().get("error.link"), true);
 		}
 		// Grabs all the topics
-		for(Object itemE : dbPage.getByXPath("//table[@class='table']/tbody/tr/td/a")) 
+		List<Object> tempList = dbPage.getByXPath("//table[@class='table']/tbody/tr/td/a");
+		// Tracks Progress
+		JProgressBar pgB = p.addTask(Main.s.getLocal().get("load.top.db"), tempList.size());
+		for(Object itemE : tempList) {
 			// Stores the Topics
 			subj.add((HtmlAnchor) itemE);
+			pgB.setValue(pgB.getValue() + 1);
+		}
 	}
 	
 	//- Questions -//
@@ -200,7 +224,7 @@ public class Loader {
 	 * @param a
 	 * The desired questions for a given topic
 	 */
-	public void loadQuest(HtmlAnchor a) {
+	public void loadQuest(HtmlAnchor a, Progress p) {
 		// Clear List
 		questions.clear();
 		// Start Assembling
@@ -216,6 +240,7 @@ public class Loader {
 		}
 		// Detection
 		List<HtmlElement> rawQues = quests.getByXPath("//div[@class='module' and h3='Directly related questions']/ul/li");
+		JProgressBar pgB = p.addTask(Main.s.getLocal().get("load.ques.rd"), rawQues.size());
 		// Question Filter
 		String lastQuestion = "";
 		for(HtmlElement item : rawQues) {
@@ -235,15 +260,17 @@ public class Loader {
 				newQuest += '.';
 			}
 			// Removal of all Lower
-			curQuestion = newQuest;
-			curQuestion = curQuestion.replaceAll("[a-z]", "");
+			curQuestion = newQuest.replaceAll("[a-z]", "");
 			// Compare (Move on if Repeated)
-			if(lastQuestion.equals(curQuestion))
+			if(lastQuestion.equals(curQuestion)) {
+				pgB.setValue(pgB.getValue() + 1);
 				continue;
+			}
 			// Update LastQuestion
 			lastQuestion = curQuestion;
 			// Stores the Topics
 			questions.put(curQuestion, item.getFirstByXPath("a"));
+			pgB.setValue(pgB.getValue() + 1);
 		}
 	}
 	

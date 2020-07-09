@@ -12,9 +12,12 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 import com.ib.quest.Constants;
 import com.ib.quest.Main;
+import com.ib.quest.gui.template.Progress;
+
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -60,9 +63,16 @@ public class History {
 	}
 	
 	/**
+	 * Progress Tracker
+	 */
+	private Progress p;
+	
+	/**
 	 * Builds history
 	 */
-	public History() {
+	public History(Progress p) {
+		// Progress
+		this.p = p;
 		// Verify History File Existence
 		if(!histFile.exists())
 			try {
@@ -70,8 +80,10 @@ public class History {
 				// Empty file so, no parsing required
 				return;
 			} catch (IOException e) {}
+		// History Verified
 		// Otherwise, parse the file
 		parseHist();
+		p.progress();
 	}
 
 	/**
@@ -85,6 +97,8 @@ public class History {
 		} catch (FileNotFoundException e) {
 			Main.throwError(Main.s.getLocal().get("error.in"), true);
 		}
+		JProgressBar pgB = p.addTask(Main.s.getLocal().get("load.start.hist"), 100);
+		pgB.setIndeterminate(true);
 		// Scans stuff
 		while(rd.hasNextLine()) {
 			String[] ln = rd.nextLine().split(";");
@@ -94,6 +108,9 @@ public class History {
 			// dd-MM-YYYY HH:mm:ss;QID%mark/MARK
 			history.put(ln[0], ln[1]);
 		}
+		// History Read
+		pgB.setValue(100);
+		pgB.setIndeterminate(false);
 	}
 	
 	/**

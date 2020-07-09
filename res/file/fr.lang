@@ -55,6 +55,20 @@ offline=Changé du mode hors ligne
 online=Changé du mode en ligne
 
 load=Chargement
+load.start=Commencer
+load.start.hist=Histoire chargée
+load.start.web=Connecté au site web
+load.start.web.link=Liens obtenus
+load.top=Charger les sujets
+load.top.db=Charger la base de données
+load.top.list=Liste dressée
+load.top.lk=Actions liés
+load.ques=Charger les questions
+load.ques.rd=Lire les questions
+load.ques.array=Compiler le tableau
+load.ques.table=Tableau crée
+load.ui=IG bâti
+load.wrap=Conclure
 load.asset=Télécharge les actifs
 
 error=Erreur
