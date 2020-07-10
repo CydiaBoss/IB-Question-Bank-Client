@@ -39,6 +39,11 @@ public class Progress extends JDialog {
 	 */
 	private JProgressBar mPB;
 	
+	/**
+	 * Progress Bar Colour
+	 */
+	private final Color G = new Color(6, 176, 37);
+	
 	
 	public Progress(JFrame owner, String task, int amt) {
 		super(owner, Main.s.getLocal().get("load"));
@@ -71,7 +76,7 @@ public class Progress extends JDialog {
 		vBox.add(taskLbl);
 		
 		mPB = new JProgressBar(0, amt);
-		mPB.setForeground(Color.GREEN);
+		mPB.setForeground(G);
 		mPB.setStringPainted(true);
 		vBox.add(mPB);
 		
@@ -116,7 +121,7 @@ public class Progress extends JDialog {
 		vBox.add(taskLbl);
 		
 		JProgressBar progressBar = new JProgressBar(0, amt);
-		progressBar.setForeground(Color.GREEN);
+		progressBar.setForeground(G);
 		progressBar.setStringPainted(true);
 		vBox.add(progressBar);
 		
