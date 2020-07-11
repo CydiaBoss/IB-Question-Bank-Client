@@ -517,16 +517,51 @@ public class Selector {
 								Main.throwError(Main.s.getLocal().get("error.quest.sel"), false);
 								return;
 							}
-							main.getContentPane().remove(quest);
-							main.getContentPane().add(new BasicQuestion(ld, 
-									((String) tab.getValueAt(tab.getSelectedRow(), 0)).trim(), main, quest), BorderLayout.CENTER);
-							reload();
+							
+							// Work in Background
+							new SwingWorker<BasicQuestion, Void>() {
+
+								@Override
+								protected BasicQuestion doInBackground() throws Exception {
+									return new BasicQuestion(ld, 
+											((String) tab.getValueAt(tab.getSelectedRow(), 0)).trim(), main, quest);
+								}
+								
+								@Override
+								protected void done() {
+									main.getContentPane().remove(quest);
+									try {
+										main.getContentPane().add(get(), BorderLayout.CENTER);
+									} catch (InterruptedException | ExecutionException e) {}
+									reload();
+								}
+								
+							}.execute();
+							
 						// Execute this if Random is Selected
 						}else{
-							// Update the JFrame to hold the random quest things
-							main.getContentPane().remove(quest);
-							main.getContentPane().add(new RandomQuestion(ld, (int) spinner.getValue(), main, quest));
-							reload();
+							
+							// Work in Background
+							new SwingWorker<RandomQuestion, Void>() {
+
+								@Override
+								protected RandomQuestion doInBackground() throws Exception {
+									return new RandomQuestion(ld, (int) spinner.getValue(), main, quest);
+								}
+								
+								@Override
+								protected void done() {
+									
+									// Update the JFrame to hold the random quest things
+									main.getContentPane().remove(quest);
+									try {
+										main.getContentPane().add(get(), BorderLayout.CENTER);
+									} catch (InterruptedException | ExecutionException e) {}
+									reload();
+								}
+								
+							}.execute();
+							
 						}
 					}), BorderLayout.CENTER);
 				} catch (InterruptedException | ExecutionException e) {}

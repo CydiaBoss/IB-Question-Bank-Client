@@ -15,6 +15,8 @@ import javax.swing.JTextArea;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.awt.GridLayout;
 import java.time.LocalDateTime;
 import java.awt.BorderLayout;
@@ -80,6 +82,9 @@ public class BasicQuestion extends JPanel {
 		return earn;
 	}
 	
+	// Future
+	private Future<JScrollPane> infoPane = null;
+	
 	/**
 	 * Creates the Panel
 	 * 
@@ -92,6 +97,8 @@ public class BasicQuestion extends JPanel {
 	 * @param pre
 	 * The previous {@link JPanel}. If null, assume random feature
 	 * @wbp.parser.entryPoint
+	 * 
+	 * TODO Find out why the screen is blank
 	 */
 	public BasicQuestion(Loader ld, String ID, JFrame m, JPanel pre) {
 		
@@ -99,14 +106,23 @@ public class BasicQuestion extends JPanel {
 		txt = "";
 		questions = new ArrayList<Question>();
 		answers = new ArrayList<Question>();
-		ld.loadQParts(ID);
-		parseQParts(ld.getQParts());
+		
+		// Run Background Stuff
+		Thread bg = new Thread(() -> {
+			ld.loadQParts(ID);
+			parseQParts(ld.getQParts());
+			if(!txt.trim().equals(""))
+				infoPane = Parser.parseTxt(txt, ID + "-Q");
+		});
+		bg.setDaemon(true);
+		bg.start();
+		
 		this.ID = ID;
 		
 		// Builds the Panel
 		setLayout(new BorderLayout(0, 0));
-		
-		//TODO Fix layout so looks better
+
+		// Building
 		JPanel panel = new JPanel();
 		add(panel, BorderLayout.NORTH);
 		GridBagLayout gbl_panel = new GridBagLayout();
@@ -125,17 +141,6 @@ public class BasicQuestion extends JPanel {
 		gbc_idLbl.gridx = 0;
 		gbc_idLbl.gridy = 0;
 		panel.add(idLbl, gbc_idLbl);
-		
-		// Test to make sure nothing is added if not required
-		if(!txt.trim().equals("")) {
-			GridBagConstraints gbc_txt = new GridBagConstraints();
-			gbc_txt.insets = new Insets(0, 0, 5, 0);
-			gbc_txt.anchor = GridBagConstraints.NORTH;
-			gbc_txt.fill = GridBagConstraints.HORIZONTAL;
-			gbc_txt.gridx = 0;
-			gbc_txt.gridy = 1;
-			panel.add(Parser.parseTxt(txt, ID + "-Q"), gbc_txt);
-		}
 		
 		JPanel panel_1 = new JPanel();
 		add(panel_1, BorderLayout.SOUTH);
@@ -169,6 +174,9 @@ public class BasicQuestion extends JPanel {
 		
 		for(Question q : questions) {
 			
+			// Start Processing
+			Future<JScrollPane> pane = Parser.parseTxt(q.getText(), ID + "-S");
+			
 			JPanel panel_3 = new JPanel();
 			displayPanel.add(q.getLabel(), panel_3);
 			panel_3.setLayout(new BorderLayout(0, 0));
@@ -185,8 +193,6 @@ public class BasicQuestion extends JPanel {
 			labelLbl.setAlignmentY(TOP_ALIGNMENT);
 			labelLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_4.add(labelLbl, BorderLayout.WEST);
-			
-			panel_4.add(Parser.parseTxt(q.getText(), ID + "-S"), BorderLayout.CENTER);
 			
 			JLabel markLbl = new JLabel("[" + q.getMark() + "]");
 			total += q.getMark();
@@ -209,6 +215,11 @@ public class BasicQuestion extends JPanel {
 			
 			Component verticalStrut_2 = Box.createVerticalStrut(20);
 			panel_3.add(verticalStrut_2, BorderLayout.SOUTH);
+			
+			// Add Pane
+			try {
+				panel_4.add(pane.get(), BorderLayout.CENTER);
+			} catch (InterruptedException | ExecutionException e1) {}
 			
 			// Puts all JPanel into a HashMap
 			questSlide.put(q.getLabel(), panel_3);
@@ -296,6 +307,24 @@ public class BasicQuestion extends JPanel {
 		// Else, add to panel
 		else
 			panel_1.add(nextBtn);
+		
+		// Add InfoPane
+		// Test to make sure nothing is added if not required
+		if(!txt.trim().equals("")) {
+			GridBagConstraints gbc_txt = new GridBagConstraints();
+			gbc_txt.insets = new Insets(0, 0, 5, 0);
+			gbc_txt.anchor = GridBagConstraints.NORTH;
+			gbc_txt.fill = GridBagConstraints.HORIZONTAL;
+			gbc_txt.gridx = 0;
+			gbc_txt.gridy = 1;
+			try {
+				bg.join();
+				panel.add(infoPane.get(), gbc_txt);
+			} catch (InterruptedException | ExecutionException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
 	}
 	
 	/**
@@ -318,6 +347,8 @@ public class BasicQuestion extends JPanel {
 		
 		// Adds answers to all Panels
 		for(Question a : answers) {
+			// Start Processing
+			Future<JScrollPane> pane = Parser.parseTxt(a.getText(), ID + "-A");
 			// Retrieve the question
 			Question qu = null;
 			for(Question q : questions)
@@ -352,8 +383,6 @@ public class BasicQuestion extends JPanel {
 			ansLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_1.add(ansLbl, BorderLayout.NORTH);
 			
-			panel_1.add(Parser.parseTxt(a.getText(), ID + "-A"), BorderLayout.CENTER);
-			
 			JPanel panel_2 = new JPanel();
 			panel_1.add(panel_2, BorderLayout.SOUTH);
 			panel_2.setLayout(new BorderLayout(0, 0));
@@ -369,13 +398,16 @@ public class BasicQuestion extends JPanel {
 			questSlideMark.put(a.getLabel(), comboBox);
 			panel_2.add(comboBox, BorderLayout.EAST);
 			
-			// Mark some sort of mark calculating system
-			
-			// TODO Change answer correction
+			// Marks
 			JLabel markLbl = new JLabel(Main.s.getLocal().get("quest.rew") + ": ");
 			markLbl.setHorizontalAlignment(SwingConstants.TRAILING);
 			markLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
 			panel_2.add(markLbl, BorderLayout.CENTER);
+			
+			// Add the Pane afterwards
+			try {
+				panel_1.add(pane.get(), BorderLayout.CENTER);
+			} catch (InterruptedException | ExecutionException e) {}
 			
 			// Add Back
 			questSlide.get(a.getLabel()).add(ansSlide, BorderLayout.CENTER);

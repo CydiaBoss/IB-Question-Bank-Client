@@ -50,6 +50,7 @@ public class Progress extends JDialog {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Progress.class.getResource("/img/IBRRI.png")));
 		setResizable(false);
 		setSize(350, 90);
+		setLocationRelativeTo(owner);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		
 		Component verticalStrut = Box.createVerticalStrut(10);

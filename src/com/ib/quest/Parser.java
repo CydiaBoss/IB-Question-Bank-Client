@@ -7,6 +7,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.imageio.ImageIO;
 import javax.swing.JEditorPane;
@@ -37,6 +41,11 @@ import uk.ac.ed.ph.snuggletex.SnuggleSession;
  */
 public class Parser {
 
+	/**
+	 * Creates a fixed thread pool in which I can count on
+	 */
+	private static final ExecutorService PL = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+	
 	/**
 	 * Starts the Snuggle Engine
 	 */
@@ -70,6 +79,8 @@ public class Parser {
 			// Override Font Size
 			if(which.equals(Parameter.MATHSIZE))
 				return Constants.Size.FMSIZE;
+			else if(which.equals(Parameter.ANTIALIAS))
+				return true;
 			return parent.getParameter(which);
 		}
 	}
@@ -118,69 +129,81 @@ public class Parser {
 	 * @return
 	 * The JPanel
 	 */
-	public static final JScrollPane parseTxt(String txt, String ID) {
-		// Size
-		Dimension maxSize = new Dimension(Constants.Size.STAN_W - 80, Constants.Size.STAN_H / 2);
-		Dimension minSize = new Dimension(Constants.Size.STAN_W - 80, Constants.Size.STAN_H / 6);
-		// Container
-		JEditorPane lbl = null;
-		// If does not contain Latex, return
-		if(!txt.contains("\\(") && !txt.contains("\\[") && !txt.contains("$$")) {
-			// Text
-			lbl = new JEditorPane("text/html", txt);
-			lbl.setBackground(new Color(240, 240, 240));
-			lbl.setEditable(false);
-			// Scroll
-			JScrollPane jSP = new JScrollPane(lbl, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			jSP.setMaximumSize(maxSize);
-			jSP.setMinimumSize(minSize);
-			jSP.setPreferredSize(null);
-			// Sets Font as System Font
-			// TODO Test if this works
-			Font font = UIManager.getFont("Label.font");
-	        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
-	                "font-size: " + font.getSize() + "pt; }";
-	        ((HTMLDocument)lbl.getDocument()).getStyleSheet().addRule(bodyRule);
-			// Return
-			return jSP;
-		}
-		// Parse txt
-		boolean isMath = false;
-		String display = "";
-		int imgC = 0;
-		for(String chunk : (" " + txt).split("(\\\\\\(|\\\\\\[|\\$\\$|\\\\\\]|\\\\\\))")) {
-			// Skip First Block if just space
-			if(chunk.equals(" ")) {
-				isMath = true;
-				continue;
+	public static final Future<JScrollPane> parseTxt(String txt, String ID) {
+		// Returns the Future
+		return PL.submit(new Callable<JScrollPane>() {
+			
+			// Size
+			private Dimension maxSize = new Dimension(Constants.Size.STAN_W - 80, Constants.Size.STAN_H / 2),
+							  minSize = new Dimension(Constants.Size.STAN_W - 80, Constants.Size.STAN_H / 6);
+			
+			/**
+			 * Builds the Pane
+			 */
+			@Override
+			public JScrollPane call() throws Exception {
+				// Container
+				JEditorPane lbl = null;
+				// If does not contain Latex, return
+				if(!txt.contains("\\(") && !txt.contains("\\[") && !txt.contains("$$")) {
+					// Text
+					lbl = new JEditorPane("text/html", txt);
+					lbl.setBackground(new Color(240, 240, 240));
+					lbl.setEditable(false);
+					// Scroll
+					JScrollPane jSP = new JScrollPane(lbl, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+					jSP.setMaximumSize(maxSize);
+					jSP.setMinimumSize(minSize);
+					jSP.setPreferredSize(null);
+					// Sets Font as System Font
+					// TODO Test if this works
+					Font font = UIManager.getFont("Label.font");
+			        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
+			                "font-size: " + font.getSize() + "pt; }";
+			        ((HTMLDocument)lbl.getDocument()).getStyleSheet().addRule(bodyRule);
+					// Return
+					return jSP;
+				}
+				// Parse txt
+				boolean isMath = false;
+				String display = "";
+				int imgC = 0;
+				for(String chunk : (" " + txt).split("(\\\\\\(|\\\\\\[|\\$\\$|\\\\\\]|\\\\\\))")) {
+					// Skip First Block if just space
+					if(chunk.equals(" ")) {
+						isMath = true;
+						continue;
+					}
+					// Filter the Math stuff
+					if(isMath) {
+						try {
+							File img = mkMath("\\[" + chunk + "\\]", "LAT-" + ID + "-" + imgC);
+							display += "<img src='" + img.toURI().toURL() + "'></img>";
+							imgC++;
+						} catch (MalformedURLException e) {}
+					}else
+						display += chunk;
+					// Switching
+					isMath = !isMath;
+				}
+				// Text Display
+				lbl = new JEditorPane("text/html", display);
+				lbl.setBackground(new Color(240, 240, 240));
+				lbl.setEditable(false);
+				// Scroll
+				JScrollPane jSP = new JScrollPane(lbl, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+				jSP.setMaximumSize(maxSize);
+				jSP.setMinimumSize(minSize);
+				jSP.setPreferredSize(null);
+				// Sets Font as System Font
+				Font font = UIManager.getFont("Label.font");
+		        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
+		                "font-size: " + font.getSize() + "pt; }";
+		        ((HTMLDocument)lbl.getDocument()).getStyleSheet().addRule(bodyRule);
+				// Size
+				return jSP;
 			}
-			// Filter the Math stuff
-			if(isMath) {
-				try {
-					File img = mkMath("\\[" + chunk + "\\]", "LAT-" + ID + "-" + imgC);
-					display += "<img src='" + img.toURI().toURL() + "'></img>";
-					imgC++;
-				} catch (MalformedURLException e) {}
-			}else
-				display += chunk;
-			// Switching
-			isMath = !isMath;
-		}
-		// Text Display
-		lbl = new JEditorPane("text/html", display);
-		lbl.setBackground(new Color(240, 240, 240));
-		lbl.setEditable(false);
-		// Scroll
-		JScrollPane jSP = new JScrollPane(lbl, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		jSP.setMaximumSize(maxSize);
-		jSP.setMinimumSize(minSize);
-		jSP.setPreferredSize(null);
-		// Sets Font as System Font
-		Font font = UIManager.getFont("Label.font");
-        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
-                "font-size: " + font.getSize() + "pt; }";
-        ((HTMLDocument)lbl.getDocument()).getStyleSheet().addRule(bodyRule);
-		// Size
-		return jSP;
+			
+		});
 	}
 }
