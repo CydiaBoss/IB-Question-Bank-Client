@@ -1,5 +1,5 @@
-# IB Question Bank Client
-An application to host the IB past paper questions from the IB document database.
+# IB Question Bank Client (On Hold)
+An application to host the IB past paper questions from the IB document database. The project is currently on hold until further notice due to the new DDoS Protection on the website.
 
 # Question Bank Website
 <a href='https://www.ibdocuments.com/'>IB Documents</a> is the website where the databases are being hosted. Unfortunately, due to copyright reasons, their databases can be down during the IB examination season.

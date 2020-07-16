@@ -35,6 +35,11 @@ public class Progress extends JDialog {
 	private JPanel mPanel = new JPanel();
 	
 	/**
+	 * Description
+	 */
+	private JLabel desLbl = new JLabel();
+	
+	/**
 	 * The main progress bar
 	 */
 	private JProgressBar mPB;
@@ -48,8 +53,9 @@ public class Progress extends JDialog {
 	public Progress(JFrame owner, String task, int amt) {
 		super(owner, Main.s.getLocal().get("load"));
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Progress.class.getResource("/img/IBRRI.png")));
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setResizable(false);
-		setSize(350, 90);
+		setSize(350, 120);
 		setLocationRelativeTo(owner);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		
@@ -76,6 +82,9 @@ public class Progress extends JDialog {
 		taskLbl.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		vBox.add(taskLbl);
 		
+		desLbl.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		vBox.add(desLbl);
+		
 		mPB = new JProgressBar(0, amt);
 		mPB.setForeground(G);
 		mPB.setStringPainted(true);
@@ -95,7 +104,10 @@ public class Progress extends JDialog {
 		);
 		// Close when maxed
 		if(mPB.getValue() == mPB.getMaximum())
-			SwingUtilities.invokeLater(() -> setVisible(false));
+			SwingUtilities.invokeLater(() -> {
+				setVisible(false);
+				dispose();
+			});
 	}
 	
 	/**
@@ -109,73 +121,9 @@ public class Progress extends JDialog {
 	 * @return
 	 * Returns the new progress bar
 	 */
-	public JProgressBar addTask(String task, int amt) {
-		
-		JPanel vBox = new JPanel();
-		vBox.setLayout(new GridLayout(0, 1, 0, 0));
-		mPanel.add(vBox);
-		
-		setSize(350, getHeight() + 60);
-		
-		JLabel taskLbl = new JLabel(task);
-		taskLbl.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		vBox.add(taskLbl);
-		
-		JProgressBar progressBar = new JProgressBar(0, amt);
-		progressBar.setForeground(G);
-		progressBar.setStringPainted(true);
-		vBox.add(progressBar);
-		
-		return progressBar;
+	public void addTask(String task, int amt) {
+		// Update 
+		desLbl.setText(task);
+		mPB.setMaximum(mPB.getMaximum() + amt);
 	}
-	
-	/**
-	 * DEMO
-	 */
-//	public static void main(String... args) {
-//		JFrame f = new JFrame();
-//		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		f.setSize(400,200);
-//		
-//		JButton b = new JButton("Click");
-//		b.addActionListener(e -> {
-//			
-//			Progress p = new Progress(f, "First Task", 100); 
-//			
-//			p.setVisible(true);
-//			
-//			new SwingWorker<Void, Object>() {
-//
-//				@Override
-//				protected Void doInBackground() throws Exception {
-//					
-//					JProgressBar pB = null;
-//					
-//					for(int i = 1; i <= 100; i++) {
-//						p.progress();
-//						
-//						if(i == 50)
-//							pB = p.addTask("Next Task", 50);
-//						
-//						if(i >= 50)
-//							pB.setValue(i - 50);
-//						
-//						Thread.sleep(100);
-//					}
-//					
-//					SwingUtilities.invokeLater(() -> 
-//						p.setVisible(false)
-//					);
-//					
-//					return null;
-//				}
-//				
-//			}.execute();
-//		});
-//		f.add(b);
-//		
-//		SwingUtilities.invokeLater(() -> {
-//			f.setVisible(true);
-//		});
-//	}
 }

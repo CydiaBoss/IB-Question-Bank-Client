@@ -7,10 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 
-import javax.swing.JProgressBar;
-
 import org.apache.commons.logging.LogFactory;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
@@ -53,15 +52,16 @@ public class Loader {
 		java.util.logging.Logger.getLogger("org.apache.commons.httpclient").setLevel(Level.OFF);
 		p.progress();
 		// Create Objs
-		c = new WebClient();
+		c = new WebClient(BrowserVersion.CHROME);
 		// Settings
-		c.getOptions().setUseInsecureSSL(true);
-		c.getOptions().setCssEnabled(false);
-		c.getOptions().setAppletEnabled(false);
-		c.getOptions().setJavaScriptEnabled(false);
+		c.getOptions().setUseInsecureSSL(false);
+		c.getOptions().setCssEnabled(true);
+		c.getOptions().setAppletEnabled(true);
+		c.getOptions().setJavaScriptEnabled(true);
 		c.getOptions().setPrintContentOnFailingStatusCode(false);
 		c.getOptions().setThrowExceptionOnFailingStatusCode(false);
 		c.getOptions().setThrowExceptionOnScriptError(false);
+		c.getOptions().setRedirectEnabled(true);
 		// Web Client Loaded
 		p.progress();
 		// Get Online Page
@@ -131,8 +131,20 @@ public class Loader {
 		// Error 403 Forbidden (DMCA Takedown)
 		// Auto switch to offline
 		if(div == null) {
+			// DDoS Attempt Override
+			// Failed.
+			HtmlDivision ddosDiv;
+			if((ddosDiv = pg.getFirstByXPath("//div[@class='attribution']")) != null)
+				if(ddosDiv.asText().trim().contains("DDoS"))
+					try {
+						Thread.sleep(7500);
+						pg = c.getPage(Constants.Database.IBDBON);
+						div = pg.getFirstByXPath("//div[@class='row services']");
+						if(div == null)
+							Main.throwError("DDoS Protection Detected. Unable to Connect...", true);
+					} catch (FailingHttpStatusCodeException | IOException | InterruptedException e) {}
 			// If div = null and setting is not offline, dmca error
-			if(Main.s.getSetting().get("connect").equals("0")) {
+			if(div == null && Main.s.getSetting().get("connect").equals("0")) {
 				Main.throwError(Main.s.getLocal().get("error.dmca") + " " + Main.s.getLocal().get("offline"), false);
 				offline();
 				div = pg.getFirstByXPath("//div[@class='row services']");
@@ -145,8 +157,7 @@ public class Loader {
 			}
 		}
 		// Finish Getting Webpage
-		JProgressBar pgB = p.addTask(Main.s.getLocal().get("load.start.web.link"), 100);
-		pgB.setIndeterminate(true);
+		p.addTask(Main.s.getLocal().get("load.start.web.link"), 1);
 		// Copy the Links down
 		for(HtmlElement a : div.getHtmlElementDescendants()) {
 			if(!(a instanceof HtmlAnchor))
@@ -155,8 +166,7 @@ public class Loader {
 			links.add((HtmlAnchor) a);
 		}
 		// Finish Getting All Links
-		pgB.setValue(100);
-		pgB.setIndeterminate(false);
+		p.progress();
 	}
 	
 	//- Current Database -//
@@ -196,11 +206,11 @@ public class Loader {
 		// Grabs all the topics
 		List<Object> tempList = dbPage.getByXPath("//table[@class='table']/tbody/tr/td/a");
 		// Tracks Progress
-		JProgressBar pgB = p.addTask(Main.s.getLocal().get("load.top.db"), tempList.size());
+		p.addTask(Main.s.getLocal().get("load.top.db"), tempList.size());
 		for(Object itemE : tempList) {
 			// Stores the Topics
 			subj.add((HtmlAnchor) itemE);
-			pgB.setValue(pgB.getValue() + 1);
+			p.progress();
 		}
 	}
 	
@@ -240,7 +250,7 @@ public class Loader {
 		}
 		// Detection
 		List<HtmlElement> rawQues = quests.getByXPath("//div[@class='module' and h3='Directly related questions']/ul/li");
-		JProgressBar pgB = p.addTask(Main.s.getLocal().get("load.ques.rd"), rawQues.size());
+		p.addTask(Main.s.getLocal().get("load.ques.rd"), rawQues.size());
 		// Question Filter
 		String lastQuestion = "";
 		for(HtmlElement item : rawQues) {
@@ -263,14 +273,14 @@ public class Loader {
 			curQuestion = newQuest.replaceAll("[a-z]", "");
 			// Compare (Move on if Repeated)
 			if(lastQuestion.equals(curQuestion)) {
-				pgB.setValue(pgB.getValue() + 1);
+				p.progress();
 				continue;
 			}
 			// Update LastQuestion
 			lastQuestion = curQuestion;
 			// Stores the Topics
 			questions.put(curQuestion, item.getFirstByXPath("a"));
-			pgB.setValue(pgB.getValue() + 1);
+			p.progress();
 		}
 	}
 	

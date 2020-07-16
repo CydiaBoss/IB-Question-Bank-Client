@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 
 import com.ib.quest.Constants;
 import com.ib.quest.Main;
@@ -97,8 +96,7 @@ public class History {
 		} catch (FileNotFoundException e) {
 			Main.throwError(Main.s.getLocal().get("error.in"), true);
 		}
-		JProgressBar pgB = p.addTask(Main.s.getLocal().get("load.start.hist"), 100);
-		pgB.setIndeterminate(true);
+		p.addTask(Main.s.getLocal().get("load.start.hist"), 1);
 		// Scans stuff
 		while(rd.hasNextLine()) {
 			String[] ln = rd.nextLine().split(";");
@@ -109,8 +107,7 @@ public class History {
 			history.put(ln[0], ln[1]);
 		}
 		// History Read
-		pgB.setValue(100);
-		pgB.setIndeterminate(false);
+		p.progress();
 	}
 	
 	/**

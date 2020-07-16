@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 
 import com.ib.quest.Loader;
 import com.ib.quest.Main;
+import com.ib.quest.gui.template.Progress;
 
 /**
  * This is a JPanel for a random question
@@ -33,7 +34,9 @@ public class RandomQuestion extends JPanel{
 	// Tracks whether submitted or not
 	private boolean submit = false;
 	
-	public RandomQuestion(Loader ld, int amt, JFrame main, JPanel pre) {
+	// TODO Add Progress
+	
+	public RandomQuestion(Loader ld, int amt, JFrame main, JPanel pre, Progress p) {
 		// Reset
 		curSlide = 1;
 		submit = false;
@@ -46,14 +49,18 @@ public class RandomQuestion extends JPanel{
 			ranID.add(s);
 		// Random Questions
 		int curQ = 0;
+		// Progress
+		p.addTask("Adding Question", amt);
 		mainLoop:
 		while(curQ < amt){
 			// Shuffle array with quest ID
 			Collections.shuffle(ranID);
 			// Add enough
 			for(String qID : ranID) {
-				selQ[curQ] = new BasicQuestion(ld, qID, null, null);
+				selQ[curQ] = new BasicQuestion(ld, qID, null, null, p);
 				curQ++;
+				// Progress
+				p.progress();
 				// Escape Once Reached
 				if(curQ == amt)
 					break mainLoop;

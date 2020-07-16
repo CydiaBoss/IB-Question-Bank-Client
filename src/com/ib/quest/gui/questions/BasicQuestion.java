@@ -5,6 +5,7 @@ import com.ib.quest.Loader;
 import com.ib.quest.Main;
 import com.ib.quest.Parser;
 import com.ib.quest.gui.questions.Question.QType;
+import com.ib.quest.gui.template.Progress;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -99,13 +100,18 @@ public class BasicQuestion extends JPanel {
 	 * @wbp.parser.entryPoint
 	 * 
 	 * TODO Find out why the screen is blank
+	 * 
+	 * @progress 7
 	 */
-	public BasicQuestion(Loader ld, String ID, JFrame m, JPanel pre) {
+	public BasicQuestion(Loader ld, String ID, JFrame m, JPanel pre, Progress p) {
 		
 		// Get Question
 		txt = "";
 		questions = new ArrayList<Question>();
 		answers = new ArrayList<Question>();
+		
+		// Progress
+		p.progress();
 		
 		// Run Background Stuff
 		Thread bg = new Thread(() -> {
@@ -113,6 +119,8 @@ public class BasicQuestion extends JPanel {
 			parseQParts(ld.getQParts());
 			if(!txt.trim().equals(""))
 				infoPane = Parser.parseTxt(txt, ID + "-Q");
+			// Progress
+			p.progress();
 		});
 		bg.setDaemon(true);
 		bg.start();
@@ -161,6 +169,9 @@ public class BasicQuestion extends JPanel {
 		
 		}
 
+		// Progress
+		p.progress();
+		
 		JScrollPane wrk = new JScrollPane(displayPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		displayPanel.setMaximumSize(new Dimension(Constants.Size.STAN_W - 60, 1200));
 		displayPanel.setPreferredSize(new Dimension(0, 800));
@@ -170,9 +181,15 @@ public class BasicQuestion extends JPanel {
 		add(wrk, BorderLayout.CENTER);
 		displayPanel.setLayout(c);
 		
-		/* Generate all Question Panel */
+		/* Require Question Stuff to be finished */
+		try {
+			bg.join();
+		} catch (InterruptedException e2) {}
 		
-		for(Question q : questions) {
+		/* Generate all Question Panel */
+		p.addTask("Question Construction", questions.size());
+		
+		questions.parallelStream().forEach(q -> {
 			
 			// Start Processing
 			Future<JScrollPane> pane = Parser.parseTxt(q.getText(), ID + "-S");
@@ -224,7 +241,11 @@ public class BasicQuestion extends JPanel {
 			// Puts all JPanel into a HashMap
 			questSlide.put(q.getLabel(), panel_3);
 			
-		}
+			p.progress();
+		});
+		
+		// Progress
+		p.progress();
 		
 		// Determine how the buttons should be built
 		// If only one question, only submit btn
@@ -258,6 +279,9 @@ public class BasicQuestion extends JPanel {
 		// Else, just add the submit btn
 		}else
 			nextBtn.setText(Main.s.getLocal().get("gen.submit"));
+		
+		// Progress
+		p.progress();
 		
 		// Effects of pressing the nextBtn
 		nextBtn.addActionListener(e -> {
@@ -298,6 +322,9 @@ public class BasicQuestion extends JPanel {
 			}
 		});
 		
+		// Progress
+		p.progress();
+		
 		// If More than 1 part of question, horizontal box will exist so add to that
 		if(questions.size() != 1)
 			horizontalBox.add(nextBtn);
@@ -307,6 +334,9 @@ public class BasicQuestion extends JPanel {
 		// Else, add to panel
 		else
 			panel_1.add(nextBtn);
+		
+		// Progress
+		p.progress();
 		
 		// Add InfoPane
 		// Test to make sure nothing is added if not required
@@ -318,13 +348,12 @@ public class BasicQuestion extends JPanel {
 			gbc_txt.gridx = 0;
 			gbc_txt.gridy = 1;
 			try {
-				bg.join();
 				panel.add(infoPane.get(), gbc_txt);
-			} catch (InterruptedException | ExecutionException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			} catch (InterruptedException | ExecutionException e1) {}
 		}
+		
+		// Progress
+		p.progress();
 	}
 	
 	/**

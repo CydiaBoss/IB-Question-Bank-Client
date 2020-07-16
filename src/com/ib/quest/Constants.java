@@ -54,7 +54,7 @@ public class Constants {
 		@Deprecated
 		private static final URL IBONEXP() {
 			try {
-				return new URL("https://www.ibdocuments.com/IB%20QUESTIONBANKS/4.%20Fourth%20Edition");
+				return new URL("https://www.ibdocuments.com/IB%20QUESTIONBANKS/4.%20Fourth%20Edition/");
 			} catch (MalformedURLException e) {
 				Main.throwError(Main.s.getLocal().get("error.in"), true);
 				return null;

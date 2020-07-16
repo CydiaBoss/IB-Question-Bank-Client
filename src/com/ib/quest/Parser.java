@@ -128,6 +128,8 @@ public class Parser {
 	 * 
 	 * @return
 	 * The JPanel
+	 * 
+	 * TODO Optimize this
 	 */
 	public static final Future<JScrollPane> parseTxt(String txt, String ID) {
 		// Returns the Future
@@ -159,7 +161,7 @@ public class Parser {
 					// TODO Test if this works
 					Font font = UIManager.getFont("Label.font");
 			        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
-			                "font-size: " + font.getSize() + "pt; }";
+			                "font-size: " + (font.getSize() + 2) + "pt; }";
 			        ((HTMLDocument)lbl.getDocument()).getStyleSheet().addRule(bodyRule);
 					// Return
 					return jSP;
@@ -198,7 +200,7 @@ public class Parser {
 				// Sets Font as System Font
 				Font font = UIManager.getFont("Label.font");
 		        String bodyRule = "body { font-family: " + font.getFamily() + "; " +
-		                "font-size: " + font.getSize() + "pt; }";
+		                "font-size: " + (font.getSize() + 2) + "pt; }";
 		        ((HTMLDocument)lbl.getDocument()).getStyleSheet().addRule(bodyRule);
 				// Size
 				return jSP;

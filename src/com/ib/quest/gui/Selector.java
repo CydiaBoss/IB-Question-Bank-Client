@@ -8,7 +8,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import javax.swing.Box;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.ib.quest.Loader;
@@ -169,12 +168,12 @@ public class Selector {
 				panel.setLayout(new GridLayout(0, 2, 10, 20));
 				
 				// New Task
-				JProgressBar pgB = p.addTask(Main.s.getLocal().get("load.start"), ld.getDBs().size());
+				p.addTask(Main.s.getLocal().get("load.start"), ld.getDBs().size());
 				// Button Addition
 				ld.getDBs().forEach(a -> {
 					// Skip unavailable ones
 					if(a.asText().trim().contains("NOT YET AVAILABLE")) {
-						pgB.setValue(pgB.getValue() + 1);
+						p.progress();
 						return;
 					}
 					JButton bt = new JButton(Main.s.getLocal().get("main." + a.asText().trim().toLowerCase().replace(" ", ".")));
@@ -194,7 +193,7 @@ public class Selector {
 					});
 					panel.add(bt);
 					btList.add(bt);
-					pgB.setValue(pgB.getValue() + 1);
+					p.progress();
 				});
 				
 				return subj;
@@ -315,7 +314,7 @@ public class Selector {
 	 */
 	private synchronized void quesSelection(int index) {
 		// Start Progress
-		Progress p = new Progress(main, Main.s.getLocal().get("load.ques"), 4);
+		new Progress(main, Main.s.getLocal().get("load.ques"), 4);
 		// Load New Question Bank
 		
 		new SwingWorker<JPanel, Void>() {
@@ -343,14 +342,14 @@ public class Selector {
 					// Data
 					data = new Object[ld.getQues().size()][(ld.getOffBuild() != null)? 3 : 2];
 					// Conversion
-					JProgressBar pgB = p.addTask(Main.s.getLocal().get("load.ques.array"), ld.getQues().keySet().size());
+					p.addTask(Main.s.getLocal().get("load.ques.array"), ld.getQues().keySet().size());
 					for(String s : ld.getQues().keySet()) {
 						data[i][0] = s;
 						data[i][1] = ld.getQues().get(s).asText();
 						if(ld.getOffBuild() != null)
 							data[i][2] = ld.getOffBuild().alrdyOff(curSubj, s);
 						i++;
-						pgB.setValue(pgB.getValue() + 1);
+						p.progress();
 					}
 				});
 				bg.setDaemon(true);
@@ -511,8 +510,13 @@ public class Selector {
 				// Show
 				try {
 					main.getContentPane().add(quest = new Option(main, get(), topic, e -> {
+						
 						// Execute this if Selection is selected
 						if(selRdBtn.isSelected()) {
+							
+							// Start Progress
+							Progress pg = new Progress(main, Main.s.getLocal().get("load"), 8);
+							
 							if(tab.getSelectedRow() < 0) {
 								Main.throwError(Main.s.getLocal().get("error.quest.sel"), false);
 								return;
@@ -524,7 +528,7 @@ public class Selector {
 								@Override
 								protected BasicQuestion doInBackground() throws Exception {
 									return new BasicQuestion(ld, 
-											((String) tab.getValueAt(tab.getSelectedRow(), 0)).trim(), main, quest);
+											((String) tab.getValueAt(tab.getSelectedRow(), 0)).trim(), main, quest, pg);
 								}
 								
 								@Override
@@ -541,12 +545,15 @@ public class Selector {
 						// Execute this if Random is Selected
 						}else{
 							
+							// Start Progress
+							Progress pg = new Progress(main, Main.s.getLocal().get("load"), 8 * (int) spinner.getValue());
+							
 							// Work in Background
 							new SwingWorker<RandomQuestion, Void>() {
 
 								@Override
 								protected RandomQuestion doInBackground() throws Exception {
-									return new RandomQuestion(ld, (int) spinner.getValue(), main, quest);
+									return new RandomQuestion(ld, (int) spinner.getValue(), main, quest, pg);
 								}
 								
 								@Override
